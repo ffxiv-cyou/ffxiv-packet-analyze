@@ -37,8 +37,25 @@ class GlobalHeader {
         return offset + GlobalHeader.size();
     }
 
+    valid(): boolean {
+        return this.magicNumber === 0xa1b2c3d4;
+    }
+
     static size(): number {
         return 24;
+    }
+
+    static fromArrayBuffer(buffer: ArrayBuffer, offset: number = 0): GlobalHeader {
+        const view = new DataView(buffer, offset);
+        const header = new GlobalHeader();
+        header.magicNumber = view.getUint32(0, true);
+        header.versionMajor = view.getUint16(4, true);
+        header.versionMinor = view.getUint16(6, true);
+        header.thisZone = view.getInt32(8, true);
+        header.sigFigs = view.getUint32(12, true);
+        header.snapLen = view.getUint32(16, true);
+        header.network = view.getUint32(20, true);
+        return header;
     }
 }
 
@@ -66,8 +83,22 @@ class PacketHeader {
         view.setUint32(12, this.origLen, true);
         return offset + PacketHeader.size();
     }
+
+    epoch(): number {
+        return this.tsSec * 1000 + Math.floor(this.tsUsec / 1000);
+    }
     static size(): number {
         return 16;
+    }
+
+    static fromArrayBuffer(buffer: ArrayBuffer, offset: number = 0): PacketHeader {
+        const view = new DataView(buffer, offset);
+        const header = new PacketHeader(0, 0);
+        header.tsSec = view.getUint32(0, true);
+        header.tsUsec = view.getUint32(4, true);
+        header.inclLen = view.getUint32(8, true);
+        header.origLen = view.getUint32(12, true);
+        return header;
     }
 }
 
@@ -114,6 +145,22 @@ class FfxivPacketHeader {
         view.setInt8(33, this.compressed);
 
         return offset + FfxivPacketHeader.size();
+    }
+
+    static fromArrayBuffer(buffer: ArrayBuffer, offset: number = 0): FfxivPacketHeader {
+        const view = new DataView(buffer, offset);
+        const header = new FfxivPacketHeader(0, 0);
+        header.unk1 = view.getUint32(0, true);
+        header.unk2 = view.getUint32(4, true);
+        header.unk3 = view.getUint32(8, true);
+        header.unk4 = view.getUint32(12, true);
+        header.timestamp = Number(view.getBigUint64(16, true));
+        header.size = view.getUint32(24, true);
+        header.cType = view.getUint16(28, true);
+        header.count = view.getUint16(30, true);
+        header.encoding = view.getInt8(32);
+        header.compressed = view.getInt8(33);
+        return header;
     }
 
     static size(): number {
@@ -165,6 +212,17 @@ class IPv4PacketHeader {
     static size(): number {
         return 20;
     }
+
+    static fromArrayBuffer(buffer: ArrayBuffer, offset: number = 0): IPv4PacketHeader {
+        const view = new DataView(buffer, offset);
+        const header = new IPv4PacketHeader(0, 0, 0, 0);
+        header.versionIhl = view.getUint8(0);
+        header.totalLength = view.getUint16(2, false);
+        header.protocol = view.getUint8(9);
+        header.srcAddr = view.getUint32(12, false);
+        header.destAddr = view.getUint32(16, false);
+        return header;
+    }
 }
 
 class UdpPacketHeader {
@@ -195,9 +253,24 @@ class UdpPacketHeader {
     static size(): number {
         return 8;
     }
+
+    static fromArrayBuffer(buffer: ArrayBuffer, offset: number = 0): UdpPacketHeader {
+        const view = new DataView(buffer, offset);
+        const header = new UdpPacketHeader(0, 0, 0, 0);
+        header.srcPort = view.getUint16(0, false);
+        header.destPort = view.getUint16(2, false);
+        header.length = view.getUint16(4, false);
+        header.checksum = view.getUint16(6, false);
+        return header;
+    }
 }
 
-export function createPcapFile(packets: { epoch: number; data: Uint8Array }[]): ArrayBuffer {
+const localAddr = 0x7f00000b; // 127.0.0.11
+const remoteAddr = 0x7f00000c; // 127.0.0.12
+const localPort = 65300;
+const remotePort = 65301;
+
+export function createPcapFile(packets: { epoch: number; dir: boolean; data: Uint8Array }[]): ArrayBuffer {
     let totalLength = GlobalHeader.size();
     const headerSize = PacketHeader.size() + IPv4PacketHeader.size() + UdpPacketHeader.size() + FfxivPacketHeader.size();
     for (const packet of packets) {
@@ -221,12 +294,17 @@ export function createPcapFile(packets: { epoch: number; data: Uint8Array }[]): 
         const packetHeader = new PacketHeader(packet.epoch, pcapPayloadSize + packet.data.byteLength);
         offset = packetHeader.setArrayBuffer(buffer, offset);
 
+        const srcAddr = packet.dir ? localAddr : remoteAddr;
+        const destAddr = packet.dir ? remoteAddr : localAddr;
+        const srcPort = packet.dir ? localPort : remotePort;
+        const destPort = packet.dir ? remotePort : localPort;
+
         // Write IPv4 header
-        const ipv4Header = new IPv4PacketHeader(ipPayloadSize + packet.data.byteLength, 17, 0x7f000002, 0x7f000003); // Loopback addresses
+        const ipv4Header = new IPv4PacketHeader(ipPayloadSize + packet.data.byteLength, 17, srcAddr, destAddr);
         offset = ipv4Header.setArrayBuffer(buffer, offset);
 
         // Write UDP header
-        const udpHeader = new UdpPacketHeader(udpPayloadSize + packet.data.byteLength, 65300, 65301);
+        const udpHeader = new UdpPacketHeader(udpPayloadSize + packet.data.byteLength, srcPort, destPort);
         offset = udpHeader.setArrayBuffer(buffer, offset);
 
         // Write FFXIV packet header
@@ -242,4 +320,36 @@ export function createPcapFile(packets: { epoch: number; data: Uint8Array }[]): 
     }
 
     return buffer;
+}
+
+export function importPcapFile(buffer: ArrayBuffer): { epoch: number; dir: boolean; opcode: number; data: Uint8Array }[] {
+    const result: { epoch: number; dir: boolean; opcode: number; data: Uint8Array }[] = [];
+
+    let offset = 0;
+    const globalHeader = GlobalHeader.fromArrayBuffer(buffer, offset);
+    if (!globalHeader.valid()) {
+        throw new Error("Invalid PCAP file");
+    }
+
+    offset += GlobalHeader.size();
+    while (offset + PacketHeader.size() <= buffer.byteLength) {
+        const packetHeader = PacketHeader.fromArrayBuffer(buffer, offset);
+        offset += PacketHeader.size();
+        if (offset + packetHeader.inclLen > buffer.byteLength) {
+            break;
+        }
+        const ipv4Header = IPv4PacketHeader.fromArrayBuffer(buffer, offset);
+        offset += IPv4PacketHeader.size();
+        const udpHeader = UdpPacketHeader.fromArrayBuffer(buffer, offset);
+        offset += UdpPacketHeader.size();
+        const ffxivHeader = FfxivPacketHeader.fromArrayBuffer(buffer, offset);
+        offset += FfxivPacketHeader.size();
+        const data = new Uint8Array(buffer, offset, ffxivHeader.size - FfxivPacketHeader.size());
+        offset += data.byteLength;
+
+        const opcode = data.length >= 32 ? (data[19] << 8) | data[18] : 0;
+        const dir = (ipv4Header.srcAddr === localAddr || udpHeader.srcPort === localPort);
+        result.push({ epoch: packetHeader.epoch(), dir, opcode, data });
+    }
+    return result;
 }

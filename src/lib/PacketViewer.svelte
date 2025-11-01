@@ -1,6 +1,10 @@
 <script lang="ts">
-  import { onDestroy, onMount } from "svelte";
   import type { Packet } from "overlay-toolkit-lib";
+  import SvelteVirtualList from "@humanspeak/svelte-virtual-list";
+  import opcodes from "../data/opcode.json";
+  import type { OpcodeList } from "../model/opcode";
+  import ByteInspector from "./ByteInspector.svelte";
+  import { bytesToHex, epochToTimeString, padHex } from "../model/data_utils";
 
   let {
     packets,
@@ -9,12 +13,38 @@
   } = $props();
 
   let opcodeFilter: string = $state("");
-  // let filteredPackets = $derived(opcodeFilter ?
-  //   packets.filter(
-  //     (packet) => packet.opcode === parseInt(opcodeFilter),
-  //   ) : packets,
-  // );
-  let filteredPackets = $derived(packets);
+  let filteredPackets = $state<Array<Packet>>([]);
+  let lastFilterNumber = -1;
+  let lastFilter = "";
+
+  function filterList(filter: string) {
+    if (lastFilterNumber >= packets.length || filter !== lastFilter) {
+      filteredPackets = [];
+      lastFilterNumber = -1;
+    }
+    lastFilter = filter;
+    const filterCode = parseInt(filter);
+    if (isNaN(filterCode) || filter === "") {
+      for (let i = lastFilterNumber + 1; i < packets.length; i++) {
+        filteredPackets.push(packets[i]);
+      }
+      lastFilterNumber = packets.length - 1;
+      return;
+    }
+
+    for (let i = lastFilterNumber + 1; i < packets.length; i++) {
+      const packet = packets[i];
+      if (packet.opcode === filterCode) {
+        filteredPackets.push(packets[i]);
+      }
+      lastFilterNumber = i;
+    }
+  }
+
+  $effect(() => {
+    packets;
+    filterList(opcodeFilter);
+  });
 
   let packetIdx: number = $state(-1);
   let packet: Packet | null = $derived(
@@ -25,77 +55,15 @@
 
   let dw = $derived.by(() => {
     if (!packet) return new DataView(new ArrayBuffer(0));
-    return new DataView(packet.data.buffer);
+    return new DataView(
+      packet.data.buffer,
+      packet.data.byteOffset,
+      packet.data.byteLength,
+    );
   });
 
   function setPacket(index: number) {
     packetIdx = index;
-  }
-
-  const ITEM_HEIGHT = 32;
-  const OVERSCAN = 5; // Virtualization padding to avoid pop-in while scrolling
-  let listContainer: HTMLDivElement | null = null;
-  let scrollTop: number = $state(0);
-  let containerHeight: number = $state(0);
-
-  type VisiblePacket = { packet: Packet; index: number };
-
-  type VisibleMetrics = { start: number; end: number; capacity: number };
-
-  let visibleMetrics: VisibleMetrics = $derived.by(() => {
-    const size = filteredPackets.length;
-    const capacity = Math.max(1, Math.ceil(containerHeight / ITEM_HEIGHT));
-    const rawStart = Math.floor(scrollTop / ITEM_HEIGHT) - OVERSCAN;
-    const maxStart = Math.max(0, size - capacity);
-    const start = Math.max(0, Math.min(rawStart, maxStart));
-    const end = Math.min(size, start + capacity + OVERSCAN * 2);
-    return { start, end, capacity };
-  });
-
-  let startIndex = $derived(visibleMetrics.start);
-  let endIndex = $derived(visibleMetrics.end);
-  let visiblePackets: VisiblePacket[] = $derived(
-    filteredPackets.slice(startIndex, endIndex).map((packet, offset) => ({
-      packet,
-      index: startIndex + offset,
-    })),
-  );
-
-  let topPadding = $derived(startIndex * ITEM_HEIGHT);
-  let bottomPadding = $derived(
-    Math.max(
-      0,
-      filteredPackets.length * ITEM_HEIGHT -
-        (topPadding + visiblePackets.length * ITEM_HEIGHT),
-    ),
-  );
-
-  $effect(() => {
-    const maxScroll = Math.max(
-      0,
-      filteredPackets.length * ITEM_HEIGHT - containerHeight,
-    );
-    if (scrollTop > maxScroll) {
-      scrollTop = maxScroll;
-      if (listContainer && listContainer.scrollTop > maxScroll) {
-        listContainer.scrollTop = maxScroll;
-      }
-    }
-  });
-
-  function toHexString(data: Uint8Array): string {
-    return Array.from(data)
-      .map((byte) => byte.toString(16).padStart(2, "0"))
-      .join(" ");
-  }
-
-  function formatEpoch(epoch: number): string {
-    const date = new Date(epoch);
-    return date.toLocaleTimeString();
-  }
-
-  function padHex(num: number, length: number): string {
-    return num.toString(16).padStart(length, "0");
   }
 
   let selectedIndex: number = $state(-1);
@@ -103,32 +71,13 @@
     selectedIndex = byteIndex;
   }
 
-  function getString(dw: DataView, offset: number): string {
-    const decoder = new TextDecoder();
-    let term = offset;
-    for (; term < dw.byteLength; term++) {
-      if (dw.getUint8(term) === 0) break;
-    }
-
-    const bytes = new Uint8Array(dw.buffer, offset, term - offset);
-    return decoder.decode(bytes);
-  }
-
+  let listRef: SvelteVirtualList<Packet> | null = null;
   function scrollToPacket(index: number) {
-    if (!listContainer) return;
-    const viewTop = listContainer.scrollTop;
-    const viewBottom = viewTop + containerHeight;
-    const top = index * ITEM_HEIGHT;
-    const bottom = top + ITEM_HEIGHT;
-
-    if (top < viewTop) {
-      listContainer.scrollTo({ top });
-      scrollTop = top;
-    } else if (bottom > viewBottom) {
-      const nextTop = bottom - containerHeight;
-      listContainer.scrollTo({ top: nextTop });
-      scrollTop = listContainer.scrollTop;
-    }
+    listRef?.scroll({
+      index,
+      smoothScroll: false,
+      align: "nearest",
+    });
   }
 
   function handleKeyDown(event: KeyboardEvent) {
@@ -149,36 +98,27 @@
     }
   }
 
-  function handleScroll(event: Event) {
-    const target = event.currentTarget as HTMLElement;
-    scrollTop = target.scrollTop;
+  function getOpcodeName(opcode: number, dir: boolean): string | null {
+    const list = opcodes as OpcodeList[];
+
+    for (const entry of list) {
+      if (entry.region !== "CN") continue;
+
+      const l = dir
+        ? entry.lists.ClientZoneIpcType
+        : entry.lists.ServerZoneIpcType;
+      const name = l.find((item) => item.opcode === opcode)?.name;
+      if (name) return name;
+    }
+
+    return null;
   }
-
-  let resizeObserver: ResizeObserver | null = null;
-
-  onMount(() => {
-    if (!listContainer) return;
-    containerHeight = listContainer.clientHeight;
-    scrollTop = listContainer.scrollTop;
-    resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.target === listContainer) {
-          containerHeight = entry.contentRect.height;
-        }
-      }
-    });
-    resizeObserver.observe(listContainer);
-  });
-
-  onDestroy(() => {
-    resizeObserver?.disconnect();
-  });
 </script>
 
 <div class="viewer-filter">
-  <div>
+  <span>
     Count: {filteredPackets.length}
-  </div>
+  </span>
   <label>
     Opcode:
     <input type="text" bind:value={opcodeFilter} placeholder="enter opcode" />
@@ -191,26 +131,27 @@
     role="listbox"
     tabindex="0"
     onkeydown={handleKeyDown}
-    onscroll={handleScroll}
-    bind:this={listContainer}
   >
-    <div style={`height: ${topPadding}px;`}></div>
-    {#each visiblePackets as item}
-      <button
-        id={"packet-" + item.index}
-        class={["packet-item", packetIdx === item.index ? "selected" : ""]}
-        onclick={() => setPacket(item.index)}
-      >
-        <span class="packet-dir">{item.packet.dir ? "C" : "S"}</span>
-        <span class="packet-time">{formatEpoch(item.packet.epoch)}</span>
-        <span class="packet-len"
-          >{padHex(item.packet.data.length, 3)}h</span
+    <SvelteVirtualList items={filteredPackets} bind:this={listRef}>
+      {#snippet renderItem(item, index)}
+        <button
+          id={"packet-" + index}
+          class={["packet-item", packetIdx === index ? "selected" : ""]}
+          onclick={() => setPacket(index)}
         >
-        <span class="packet-opcode">{padHex(item.packet.opcode, 4)}</span>
-        <span class="packet-data">{toHexString(item.packet.data)}</span>
-      </button>
-    {/each}
-    <div style={`height: ${bottomPadding}px;`}></div>
+          <span class="packet-dir">{item.dir ? "C" : "S"}</span>
+          <span class="packet-time">{epochToTimeString(item.epoch)}</span>
+          <span class="packet-len">{padHex(item.data.length, 3)}h</span>
+          <span class="packet-opcode">{padHex(item.opcode, 4)}</span>
+          <span class="packet-data">{bytesToHex(item.data.slice(32, 64))}</span>
+          {#if getOpcodeName(item.opcode, item.dir)}
+            <span class="packet-name">
+              {getOpcodeName(item.opcode, item.dir)}
+            </span>
+          {/if}
+        </button>
+      {/snippet}
+    </SvelteVirtualList>
   </div>
   <div class="packet-detail">
     {#if packet}
@@ -233,70 +174,7 @@
           >
         {/each}
       </div>
-      <div class="packet-inspect">
-        {#if selectedIndex >= 0 && selectedIndex < dw.byteLength}
-          <ul>
-            <li>
-              <span class="inspect-name">Offset</span>
-              {selectedIndex} ({padHex(selectedIndex, 2)}h)
-            </li>
-            <li>
-              <span class="inspect-name">uint8</span>
-              {dw.getUint8(selectedIndex)}
-            </li>
-            <li>
-              <span class="inspect-name">int8</span>
-              {dw.getInt8(selectedIndex)}
-            </li>
-            {#if selectedIndex + 1 < dw.byteLength}
-              <li>
-                <span class="inspect-name">uint16</span>
-                {dw.getUint16(selectedIndex, true)}
-              </li>
-              <li>
-                <span class="inspect-name">int16</span>
-                {dw.getInt16(selectedIndex, true)}
-              </li>
-            {/if}
-            {#if selectedIndex + 3 < dw.byteLength}
-              <li>
-                <span class="inspect-name">uint32</span>
-                {dw.getUint32(selectedIndex, true)}
-              </li>
-              <li>
-                <span class="inspect-name">int32</span>
-                {dw.getInt32(selectedIndex, true)}
-              </li>
-            {/if}
-            {#if selectedIndex + 7 < dw.byteLength}
-              <li>
-                <span class="inspect-name">uint64</span>
-                {dw.getBigUint64(selectedIndex, true)}
-              </li>
-              <li>
-                <span class="inspect-name">int64</span>
-                {dw.getBigInt64(selectedIndex, true)}
-              </li>
-            {/if}
-            {#if selectedIndex + 3 < dw.byteLength}
-              <li>
-                <span class="inspect-name">float32</span>
-                {dw.getFloat32(selectedIndex, true)}
-              </li>
-            {/if}
-            {#if selectedIndex + 7 < dw.byteLength}
-              <li>
-                <span class="inspect-name">float64</span>
-                {dw.getFloat64(selectedIndex, true)}
-              </li>
-            {/if}
-            <li>
-              <span class="inspect-name">string</span>
-              {getString(dw, selectedIndex)}
-            </li>
-          </ul>
-        {/if}
-      </div>
+      <ByteInspector {dw} {selectedIndex} />
     {/if}
   </div>
 </div>
@@ -350,63 +228,60 @@
         }
       }
     }
-
-    & .inspect-name {
-      display: inline-block;
-      font-weight: 500;
-      width: 60px;
-      margin-right: 10px;
-      &::after {
-        content: ":";
-      }
-    }
   }
 
   .packet-list {
     overflow-y: auto;
     border: 1px solid #ccc;
-    padding: 5px;
     background-color: #f9f9f9;
     font-size: 12px;
     width: 1000px;
     margin-top: 32px;
-  }
 
-  .packet-item {
-    padding: 5px;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    font-family: "Fira Code", monospace;
-    gap: 10px;
-    min-height: 32px;
-    align-items: center;
-    box-sizing: border-box;
+    & .packet-item {
+      padding: 5px 10px;
+      border-bottom: 1px solid #eee !important;
+      display: flex;
+      font-family: "Fira Code", monospace;
+      gap: 10px;
+      min-height: 32px;
+      align-items: center;
+      box-sizing: border-box;
+      width: 100%;
+      text-align: left;
 
-    &.selected {
-      background-color: #c0c0ff;
+      &:hover {
+        background-color: #e0e0e0;
+      }
+      &.selected {
+        background-color: #c0c0ff;
+        &:hover {
+          background-color: #a0a0ff;
+        }
+      }
+    }
+
+    & button {
+      background: none;
+      cursor: pointer;
+      border-radius: 0;
+      transition: none;
+      border: none;
+    }
+
+    & .packet-name {
+      color: #800080;
+      padding: 0 3px;
+    }
+
+    .packet-data {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      flex-grow: 1;
     }
   }
 
-  button.packet-item {
-    width: 100%;
-    text-align: left;
-    background: none;
-    cursor: pointer;
-    border-radius: 0;
-  }
-  button.packet-item:hover {
-    background-color: #e0e0e0;
-    border: inherit;
-    &.selected {
-      background-color: #a0a0ff;
-    }
-  }
-
-  .packet-data {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
   .packet-dir {
     font-weight: bold;
   }

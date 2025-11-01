@@ -2,7 +2,7 @@
   import overlayToolkit from "overlay-toolkit-lib";
   import type { Packet } from "overlay-toolkit-lib";
   import PacketViewer from "./lib/PacketViewer.svelte";
-  import { createPcapFile } from "./model/pcap";
+  import { createPcapFile, importPcapFile } from "./model/pcap";
 
   overlayToolkit.Start();
 
@@ -34,6 +34,31 @@
     a.click();
     URL.revokeObjectURL(url);
   }
+
+  function importPackets(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files?.length) {
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const buffer = e.target?.result as ArrayBuffer;
+        const importedPackets = importPcapFile(buffer);
+        packets.push(
+          ...importedPackets.map((p) => ({
+            epoch: p.epoch,
+            dir: p.dir,
+            data: p.data,
+            opcode: p.opcode,
+            type: "imported",
+            name: "imported",
+            conn: "",
+            length: p.data.length,
+          })),
+        );
+      };
+      reader.readAsArrayBuffer(file);
+    }
+  }
 </script>
 
 <main>
@@ -43,6 +68,8 @@
   <button onclick={stopCapture}>Stop Capture</button>
   <button onclick={clearPackets}>Clear Packets</button>
   <button onclick={exportPackets}>Export Packets</button>
+  <label for="file">Import</label>
+  <input type="file" id="file" accept=".pcap" onchange={importPackets} name="pcapFile" />
 
   <div class="card">
     <PacketViewer {packets} />
