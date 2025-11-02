@@ -43,18 +43,16 @@
       reader.onload = (e) => {
         const buffer = e.target?.result as ArrayBuffer;
         const importedPackets = importPcapFile(buffer);
-        packets.push(
-          ...importedPackets.map((p) => ({
-            epoch: p.epoch,
-            dir: p.dir,
-            data: p.data,
-            opcode: p.opcode,
-            type: "imported",
-            name: "imported",
-            conn: "",
-            length: p.data.length,
-          })),
-        );
+        packets = importedPackets.map((p) => ({
+          epoch: p.epoch,
+          dir: p.dir,
+          data: p.data,
+          opcode: p.opcode,
+          type: "imported",
+          name: "imported",
+          conn: "",
+          length: p.data.length,
+        }));
       };
       reader.readAsArrayBuffer(file);
     }
@@ -69,7 +67,13 @@
   <button onclick={clearPackets}>Clear Packets</button>
   <button onclick={exportPackets}>Export Packets</button>
   <label for="file">Import</label>
-  <input type="file" id="file" accept=".pcap" onchange={importPackets} name="pcapFile" />
+  <input
+    type="file"
+    id="file"
+    accept=".pcap"
+    onchange={importPackets}
+    name="pcapFile"
+  />
 
   <div class="card">
     <PacketViewer {packets} />

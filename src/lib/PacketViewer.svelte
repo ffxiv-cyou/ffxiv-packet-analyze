@@ -1,10 +1,14 @@
 <script lang="ts">
   import type { Packet } from "overlay-toolkit-lib";
   import SvelteVirtualList from "@humanspeak/svelte-virtual-list";
-  import opcodes from "../data/opcode.json";
-  import type { OpcodeList } from "../model/opcode";
   import ByteInspector from "./ByteInspector.svelte";
-  import { bytesToHex, epochToTimeString, padHex } from "../model/data_utils";
+  import {
+    bytesToHex,
+    epochToTimeString,
+    padHex,
+    getOpcodeName,
+  } from "../model/data_utils";
+  import PacketFields from "./PacketFields.svelte";
 
   let {
     packets,
@@ -12,39 +16,30 @@
     packets: Packet[];
   } = $props();
 
+  let filteredPackets = $derived(packets);
   let opcodeFilter: string = $state("");
-  let filteredPackets = $state<Array<Packet>>([]);
-  let lastFilterNumber = -1;
-  let lastFilter = "";
 
-  function filterList(filter: string) {
-    if (lastFilterNumber >= packets.length || filter !== lastFilter) {
-      filteredPackets = [];
-      lastFilterNumber = -1;
-    }
-    lastFilter = filter;
-    const filterCode = parseInt(filter);
-    if (isNaN(filterCode) || filter === "") {
-      for (let i = lastFilterNumber + 1; i < packets.length; i++) {
-        filteredPackets.push(packets[i]);
+  function findNext() {
+    for (let i = packetIdx + 1; i < filteredPackets.length; i++) {
+      const element = filteredPackets[i];
+      if (element.opcode === parseInt(opcodeFilter)) {
+        setPacket(i);
+        scrollToPacket(i);
+        return;
       }
-      lastFilterNumber = packets.length - 1;
-      return;
-    }
-
-    for (let i = lastFilterNumber + 1; i < packets.length; i++) {
-      const packet = packets[i];
-      if (packet.opcode === filterCode) {
-        filteredPackets.push(packets[i]);
-      }
-      lastFilterNumber = i;
     }
   }
-
-  $effect(() => {
-    packets;
-    filterList(opcodeFilter);
-  });
+  
+  function findPrev() {
+    for (let i = packetIdx - 1; i >= 0; i--) {
+      const element = filteredPackets[i];
+      if (element.opcode === parseInt(opcodeFilter)) {
+        setPacket(i);
+        scrollToPacket(i);
+        return;
+      }
+    }
+  }
 
   let packetIdx: number = $state(-1);
   let packet: Packet | null = $derived(
@@ -52,6 +47,10 @@
       ? filteredPackets[packetIdx]
       : null,
   );
+
+  function setPacket(index: number) {
+    packetIdx = index;
+  }
 
   let dw = $derived.by(() => {
     if (!packet) return new DataView(new ArrayBuffer(0));
@@ -62,11 +61,10 @@
     );
   });
 
-  function setPacket(index: number) {
-    packetIdx = index;
-  }
-
   let selectedIndex: number = $state(-1);
+  $effect(() => {
+    if (selectedIndex >= dw.byteLength) selectedIndex = -1;
+  });
   function inspectAt(byteIndex: number) {
     selectedIndex = byteIndex;
   }
@@ -81,37 +79,57 @@
   }
 
   function handleKeyDown(event: KeyboardEvent) {
-    if (event.key === "ArrowUp") {
-      if (packetIdx > 0) {
-        packetIdx -= 1;
-        if (selectedIndex >= dw.byteLength) selectedIndex = -1;
-        scrollToPacket(packetIdx);
-      }
-      event.preventDefault();
-    } else if (event.key === "ArrowDown") {
-      if (packetIdx + 1 < filteredPackets.length) {
-        packetIdx += 1;
-        if (selectedIndex >= dw.byteLength) selectedIndex = -1;
-        scrollToPacket(packetIdx);
-      }
-      event.preventDefault();
+    switch (event.key) {
+      case "ArrowUp":
+        if (packetIdx > 0) {
+          packetIdx -= 1;
+        }
+        break;
+      case "ArrowDown":
+        if (packetIdx + 1 < filteredPackets.length) {
+          packetIdx += 1;
+        }
+        break;
+      default:
+        return;
     }
+
+    const target = event.target as HTMLElement;
+
+    event.preventDefault();
+    scrollToPacket(packetIdx);
+    target?.parentElement?.focus();
   }
 
-  function getOpcodeName(opcode: number, dir: boolean): string | null {
-    const list = opcodes as OpcodeList[];
-
-    for (const entry of list) {
-      if (entry.region !== "CN") continue;
-
-      const l = dir
-        ? entry.lists.ClientZoneIpcType
-        : entry.lists.ServerZoneIpcType;
-      const name = l.find((item) => item.opcode === opcode)?.name;
-      if (name) return name;
+  function handleInspectKey(event: KeyboardEvent) {
+    switch (event.key) {
+      case "ArrowLeft":
+        if (selectedIndex > 0) {
+          selectedIndex -= 1;
+        }
+        break;
+      case "ArrowRight":
+        if (selectedIndex + 1 < dw.byteLength) {
+          selectedIndex += 1;
+        }
+        break;
+      case "ArrowUp":
+        if (selectedIndex - 16 >= 0) {
+          selectedIndex -= 16;
+        }
+        break;
+      case "ArrowDown":
+        if (selectedIndex + 16 < dw.byteLength) {
+          selectedIndex += 16;
+        }
+        break;
+      case "Escape":
+        selectedIndex = -1;
+        break;
+      default:
+        return;
     }
-
-    return null;
+    event.preventDefault();
   }
 </script>
 
@@ -123,13 +141,15 @@
     Opcode:
     <input type="text" bind:value={opcodeFilter} placeholder="enter opcode" />
   </label>
+  <button type="button" onclick={findNext}>next</button>
+  <button type="button" onclick={findPrev}>prev</button>
 </div>
 
 <div class="packet-viewer">
   <div
     class="packet-list"
     role="listbox"
-    tabindex="0"
+    tabindex="-1"
     onkeydown={handleKeyDown}
   >
     <SvelteVirtualList items={filteredPackets} bind:this={listRef}>
@@ -163,18 +183,28 @@
         Length: <span class="packet-len">{padHex(packet.data.length, 3)}h</span>
         Opcode: <span class="packet-opcode">{padHex(packet.opcode, 4)}</span>
       </div>
-      <div class="packet-hex">
+      <div
+        class="packet-hex"
+        onkeydown={handleInspectKey}
+        role="grid"
+        tabindex="-1"
+      >
         {#each packet.data as byte, i}
           <button
             type="button"
             class={["hex-item", selectedIndex === i ? "selected" : ""]}
             onclick={() => inspectAt(i)}
-            aria-label={"Inspect byte at index " + i}
+            aria-label={"Inspect byte at " + i}
             >{byte.toString(16).padStart(2, "0")}</button
           >
         {/each}
       </div>
-      <ByteInspector {dw} {selectedIndex} />
+      <div class="packet-info"></div>
+      {#if selectedIndex < 0}
+        <PacketFields {packet} />
+      {:else}
+        <ByteInspector {dw} {selectedIndex} />
+      {/if}
     {/if}
   </div>
 </div>
@@ -194,6 +224,10 @@
       height: 32px;
     }
 
+    & .packet-info {
+      font-size: 12px;
+    }
+
     & .packet-hex {
       background-color: #f0f0f0;
       padding: 10px;
@@ -202,7 +236,7 @@
       font-size: 12px;
       overflow-x: auto;
       line-break: anywhere;
-      width: 30em;
+      width: 31em;
       height: 20em;
 
       & .hex-item {
@@ -221,6 +255,16 @@
         text-align: center;
         user-select: none;
         padding: 1px;
+
+        &:nth-child(-n + 8):nth-child(n + 5) {
+          background-color: #80ddff;
+        }
+        &:nth-child(-n + 12):nth-child(n + 9) {
+          background-color: #80bbff;
+        }
+        &:nth-child(-n + 32) {
+          background-color: #c0c0c0;
+        }
 
         &.selected {
           background-color: #0066cc;
