@@ -50,7 +50,7 @@
 <div class="field-item">
   <div class="field-name">{field.name}:</div>
   {#if (field.type === "int8" || field.type === "uint8") && (field.arrayLength || 0) > 1}
-    {#if field.name.match("name")}
+    {#if field.name.match(/name$/i)}
       <span>{bytesToString(dw, offset, field.arrayLength)}</span>
     {:else}
       <span

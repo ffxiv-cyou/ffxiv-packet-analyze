@@ -7,8 +7,10 @@
     epochToTimeString,
     padHex,
     getOpcodeName,
+    getNameOpcode,
   } from "../model/data_utils";
   import PacketFields from "./PacketFields.svelte";
+  import { onMount } from "svelte";
 
   let {
     packets,
@@ -16,24 +18,40 @@
     packets: Packet[];
   } = $props();
 
-  let filteredPackets = $derived(packets);
+  let filteredPackets: Packet[] = $state.raw([]);
   let opcodeFilter: string = $state("");
 
+  function filterToOpcode(filter: string): number | undefined {
+    let opcode = parseInt(filter);
+    if (opcode) return opcode;
+
+    let opcodeByName = getNameOpcode(filter);
+    if (opcodeByName) return opcodeByName;
+
+    return undefined;
+  }
+
   function findNext() {
+    const opcode = filterToOpcode(opcodeFilter);
+    if (opcode === undefined) return;
+
     for (let i = packetIdx + 1; i < filteredPackets.length; i++) {
       const element = filteredPackets[i];
-      if (element.opcode === parseInt(opcodeFilter)) {
+      if (element.opcode === opcode) {
         setPacket(i);
         scrollToPacket(i);
         return;
       }
     }
   }
-  
+
   function findPrev() {
+    const opcode = filterToOpcode(opcodeFilter);
+    if (opcode === undefined) return;
+
     for (let i = packetIdx - 1; i >= 0; i--) {
       const element = filteredPackets[i];
-      if (element.opcode === parseInt(opcodeFilter)) {
+      if (element.opcode === opcode) {
         setPacket(i);
         scrollToPacket(i);
         return;
@@ -131,11 +149,21 @@
     }
     event.preventDefault();
   }
+
+  function sync() {
+    if (filteredPackets.length != packets.length) filteredPackets = packets;
+  }
+
+  let intervalHandler: number | null = null;
+
+  onMount(() => {
+    if (!intervalHandler) intervalHandler = setInterval(sync, 100);
+  });
 </script>
 
 <div class="viewer-filter">
   <span>
-    Count: {filteredPackets.length}
+    Count: {packets.length}
   </span>
   <label>
     Opcode:

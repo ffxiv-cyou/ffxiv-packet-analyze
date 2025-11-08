@@ -5887,7 +5887,7 @@
                     "size": 4
                 },
                 {
-                    "name": "unknown28",
+                    "name": "spearfishCaught",
                     "type": "uint32",
                     "offset": 48,
                     "size": 4
@@ -5911,25 +5911,26 @@
                     "size": 4
                 },
                 {
-                    "name": "unknownTimestamp34",
+                    "name": "squadronMissionFinishAt",
                     "type": "uint32",
                     "offset": 60,
                     "size": 4
                 },
                 {
-                    "name": "unknownTimestamp38",
+                    "name": "squadronTrainingFinishAt",
                     "type": "uint32",
                     "offset": 64,
                     "size": 4
                 },
                 {
-                    "name": "unknown3C",
-                    "type": "uint32",
+                    "name": "wondrousTailsStatus",
+                    "type": "uint8",
+                    "arrayLength": 4,
                     "offset": 68,
-                    "size": 4
+                    "size": 1
                 },
                 {
-                    "name": "unknown40",
+                    "name": "wondrousTailsFlags",
                     "type": "uint32",
                     "offset": 72,
                     "size": 4
@@ -5980,8 +5981,44 @@
                 {
                     "name": "unknown64",
                     "type": "uint16",
-                    "arrayLength": 8,
+                    "arrayLength": 2,
                     "offset": 102,
+                    "size": 2
+                },
+                {
+                    "name": "pvpFrontlineWeeklyMatches",
+                    "type": "uint16",
+                    "offset": 106,
+                    "size": 2
+                },
+                {
+                    "name": "unknown68",
+                    "type": "uint16",
+                    "offset": 108,
+                    "size": 2
+                },
+                {
+                    "name": "activeGrandCompanyExpedition",
+                    "type": "uint16",
+                    "offset": 110,
+                    "size": 2
+                },
+                {
+                    "name": "activeGrandCompanyTraining",
+                    "type": "uint16",
+                    "offset": 112,
+                    "size": 2
+                },
+                {
+                    "name": "unknown6E",
+                    "type": "uint16",
+                    "offset": 114,
+                    "size": 2
+                },
+                {
+                    "name": "wondrousTailsCompleted",
+                    "type": "uint16",
+                    "offset": 116,
                     "size": 2
                 },
                 {
@@ -6021,7 +6058,7 @@
                     "size": 1
                 },
                 {
-                    "name": "unknown76",
+                    "name": "premiumSaddlebag",
                     "type": "uint8",
                     "offset": 128,
                     "size": 1
@@ -6094,15 +6131,20 @@
                 },
                 {
                     "name": "homepoint",
-                    "type": "uint8",
+                    "type": "uint16",
                     "offset": 140,
+                    "size": 2
+                },
+                {
+                    "name": "questSpecialFlags",
+                    "type": "uint8",
+                    "offset": 142,
                     "size": 1
                 },
                 {
-                    "name": "unknown8D",
+                    "name": "petData",
                     "type": "uint8",
-                    "arrayLength": 3,
-                    "offset": 141,
+                    "offset": 143,
                     "size": 1
                 },
                 {
@@ -6124,7 +6166,7 @@
                     "size": 1
                 },
                 {
-                    "name": "companionUnk93",
+                    "name": "companionActiveCommand",
                     "type": "uint8",
                     "offset": 147,
                     "size": 1
@@ -6148,10 +6190,33 @@
                     "size": 1
                 },
                 {
+                    "name": "dailyQuestSeed",
+                    "type": "uint8",
+                    "offset": 151,
+                    "size": 1
+                },
+                {
                     "name": "unknown97",
                     "type": "uint8",
-                    "arrayLength": 5,
-                    "offset": 151,
+                    "offset": 152,
+                    "size": 1
+                },
+                {
+                    "name": "weeklyLockoutInfo",
+                    "type": "uint8",
+                    "offset": 153,
+                    "size": 1
+                },
+                {
+                    "name": "relicId",
+                    "type": "uint8",
+                    "offset": 154,
+                    "size": 1
+                },
+                {
+                    "name": "relicNoteId",
+                    "type": "uint8",
+                    "offset": 155,
                     "size": 1
                 },
                 {
@@ -6208,400 +6273,546 @@
                 {
                     "name": "unknown138",
                     "type": "uint32",
+                    "arrayLength": 4,
                     "offset": 336,
                     "size": 4
                 },
                 {
                     "name": "levels",
                     "type": "uint16",
-                    "arrayLength": 32,
-                    "offset": 340,
+                    "arrayLength": 35,
+                    "offset": 352,
+                    "size": 2
+                },
+                {
+                    "name": "activeFestivalIds",
+                    "type": "uint16",
+                    "arrayLength": 4,
+                    "offset": 422,
+                    "size": 2
+                },
+                {
+                    "name": "activeFestivalPhases",
+                    "type": "uint16",
+                    "arrayLength": 4,
+                    "offset": 430,
                     "size": 2
                 },
                 {
                     "name": "unknown194",
                     "type": "uint8",
-                    "arrayLength": 218,
-                    "offset": 404,
+                    "arrayLength": 176,
+                    "offset": 438,
                     "size": 1
+                },
+                {
+                    "name": "beastReputationValue",
+                    "type": "uint16",
+                    "arrayLength": 20,
+                    "offset": 614,
+                    "size": 2
+                },
+                {
+                    "name": "questManagerUnknown",
+                    "type": "uint16",
+                    "arrayLength": 8,
+                    "offset": 654,
+                    "size": 2
+                },
+                {
+                    "name": "supplySatisfaction",
+                    "type": "uint16",
+                    "arrayLength": 11,
+                    "offset": 670,
+                    "size": 2
                 },
                 {
                     "name": "companionName",
                     "type": "int8",
                     "arrayLength": 21,
-                    "offset": 622,
+                    "offset": 692,
                     "size": 1
                 },
                 {
                     "name": "companionDefRank",
                     "type": "uint8",
-                    "offset": 643,
+                    "offset": 713,
                     "size": 1
                 },
                 {
                     "name": "companionAttRank",
                     "type": "uint8",
-                    "offset": 644,
+                    "offset": 714,
                     "size": 1
                 },
                 {
                     "name": "companionHealRank",
                     "type": "uint8",
-                    "offset": 645,
+                    "offset": 715,
                     "size": 1
                 },
                 {
                     "name": "mountGuideMask",
                     "type": "uint8",
-                    "arrayLength": 33,
-                    "offset": 646,
+                    "arrayLength": 41,
+                    "offset": 716,
                     "size": 1
                 },
                 {
                     "name": "ornamentMask",
                     "type": "uint8",
-                    "arrayLength": 4,
-                    "offset": 679,
+                    "arrayLength": 8,
+                    "offset": 757,
                     "size": 1
                 },
                 {
-                    "name": "unknown281",
+                    "name": "glassesStylesMask",
                     "type": "uint8",
-                    "arrayLength": 23,
-                    "offset": 683,
+                    "arrayLength": 5,
+                    "offset": 765,
+                    "size": 1
+                },
+                {
+                    "name": "framerKitsMask",
+                    "type": "uint8",
+                    "arrayLength": 33,
+                    "offset": 770,
                     "size": 1
                 },
                 {
                     "name": "name",
                     "type": "int8",
                     "arrayLength": 32,
-                    "offset": 706,
+                    "offset": 803,
                     "size": 1
                 },
                 {
                     "name": "unknown293",
                     "type": "uint8",
                     "arrayLength": 16,
-                    "offset": 738,
+                    "offset": 835,
                     "size": 1
                 },
                 {
                     "name": "unknown2A3",
                     "type": "uint8",
                     "arrayLength": 16,
-                    "offset": 754,
+                    "offset": 851,
                     "size": 1
                 },
                 {
                     "name": "unlockBitmask",
                     "type": "uint8",
-                    "arrayLength": 64,
-                    "offset": 770,
+                    "arrayLength": 92,
+                    "offset": 867,
                     "size": 1
                 },
                 {
                     "name": "aetheryte",
                     "type": "uint8",
-                    "arrayLength": 26,
-                    "offset": 834,
+                    "arrayLength": 31,
+                    "offset": 959,
                     "size": 1
                 },
                 {
                     "name": "favoriteAetheryteIds",
                     "type": "uint16",
                     "arrayLength": 4,
-                    "offset": 860,
+                    "offset": 990,
                     "size": 2
                 },
                 {
                     "name": "freeAetheryteId",
                     "type": "uint16",
-                    "offset": 868,
+                    "offset": 998,
                     "size": 2
                 },
                 {
                     "name": "psPlusFreeAetheryteId",
                     "type": "uint16",
-                    "offset": 870,
+                    "offset": 1000,
                     "size": 2
                 },
                 {
                     "name": "discovery",
                     "type": "uint8",
-                    "arrayLength": 480,
-                    "offset": 872,
+                    "arrayLength": 508,
+                    "offset": 1002,
                     "size": 1
                 },
                 {
                     "name": "howto",
                     "type": "uint8",
-                    "arrayLength": 36,
-                    "offset": 1352,
-                    "size": 1
-                },
-                {
-                    "name": "unknown554",
-                    "type": "uint8",
-                    "arrayLength": 4,
-                    "offset": 1388,
+                    "arrayLength": 37,
+                    "offset": 1510,
                     "size": 1
                 },
                 {
                     "name": "minions",
                     "type": "uint8",
-                    "arrayLength": 60,
-                    "offset": 1392,
+                    "arrayLength": 71,
+                    "offset": 1547,
                     "size": 1
                 },
                 {
                     "name": "chocoboTaxiMask",
                     "type": "uint8",
                     "arrayLength": 12,
-                    "offset": 1452,
+                    "offset": 1618,
                     "size": 1
                 },
                 {
                     "name": "watchedCutscenes",
                     "type": "uint8",
-                    "arrayLength": 159,
-                    "offset": 1464,
+                    "arrayLength": 174,
+                    "offset": 1630,
                     "size": 1
                 },
                 {
                     "name": "companionBardingMask",
                     "type": "uint8",
-                    "arrayLength": 12,
-                    "offset": 1623,
+                    "arrayLength": 14,
+                    "offset": 1804,
                     "size": 1
                 },
                 {
                     "name": "companionEquippedHead",
                     "type": "uint8",
-                    "offset": 1635,
+                    "offset": 1818,
                     "size": 1
                 },
                 {
                     "name": "companionEquippedBody",
                     "type": "uint8",
-                    "offset": 1636,
+                    "offset": 1819,
                     "size": 1
                 },
                 {
                     "name": "companionEquippedLegs",
                     "type": "uint8",
-                    "offset": 1637,
+                    "offset": 1820,
                     "size": 1
                 },
                 {
-                    "name": "unknownMask",
+                    "name": "unknown73d",
+                    "type": "uint32",
+                    "offset": 1821,
+                    "size": 4
+                },
+                {
+                    "name": "unknown741",
                     "type": "uint8",
-                    "arrayLength": 287,
-                    "offset": 1638,
+                    "arrayLength": 11,
+                    "offset": 1825,
+                    "size": 1
+                },
+                {
+                    "name": "caughtFishes",
+                    "type": "uint8",
+                    "arrayLength": 182,
+                    "offset": 1836,
+                    "size": 1
+                },
+                {
+                    "name": "unlockedFishingSpots",
+                    "type": "uint8",
+                    "arrayLength": 42,
+                    "offset": 2018,
+                    "size": 1
+                },
+                {
+                    "name": "caughtSpearfish",
+                    "type": "uint8",
+                    "arrayLength": 38,
+                    "offset": 2060,
+                    "size": 1
+                },
+                {
+                    "name": "unlockedSpearfishingSpots",
+                    "type": "uint8",
+                    "arrayLength": 9,
+                    "offset": 2098,
+                    "size": 1
+                },
+                {
+                    "name": "rankGrandCompany",
+                    "type": "uint8",
+                    "arrayLength": 3,
+                    "offset": 2107,
+                    "size": 1
+                },
+                {
+                    "name": "beastReputationRank",
+                    "type": "uint8",
+                    "arrayLength": 20,
+                    "offset": 2110,
+                    "size": 1
+                },
+                {
+                    "name": "contentRouletteCompletion",
+                    "type": "uint8",
+                    "arrayLength": 10,
+                    "offset": 2130,
+                    "size": 1
+                },
+                {
+                    "name": "unknown6f7",
+                    "type": "uint8",
+                    "arrayLength": 2,
+                    "offset": 2140,
                     "size": 1
                 },
                 {
                     "name": "pose",
                     "type": "uint8",
                     "arrayLength": 7,
-                    "offset": 1925,
+                    "offset": 2142,
                     "size": 1
                 },
                 {
-                    "name": "unknown6DF",
+                    "name": "playerStateFlags",
                     "type": "uint8",
                     "arrayLength": 3,
-                    "offset": 1932,
+                    "offset": 2149,
                     "size": 1
                 },
                 {
-                    "name": "challengeLogComplete",
+                    "name": "contentsNoteCompletionFlags",
                     "type": "uint8",
                     "arrayLength": 13,
-                    "offset": 1935,
+                    "offset": 2152,
                     "size": 1
                 },
                 {
                     "name": "secretRecipeBookMask",
                     "type": "uint8",
-                    "arrayLength": 12,
-                    "offset": 1948,
+                    "arrayLength": 14,
+                    "offset": 2165,
                     "size": 1
                 },
                 {
-                    "name": "unknownMask6F7",
+                    "name": "unknownMask879",
                     "type": "uint8",
-                    "arrayLength": 29,
-                    "offset": 1960,
+                    "arrayLength": 28,
+                    "offset": 2179,
                     "size": 1
                 },
                 {
                     "name": "relicCompletion",
                     "type": "uint8",
                     "arrayLength": 12,
-                    "offset": 1989,
+                    "offset": 2207,
                     "size": 1
                 },
                 {
                     "name": "sightseeingMask",
                     "type": "uint8",
-                    "arrayLength": 37,
-                    "offset": 2001,
+                    "arrayLength": 43,
+                    "offset": 2219,
                     "size": 1
                 },
                 {
                     "name": "huntingMarkMask",
                     "type": "uint8",
-                    "arrayLength": 102,
-                    "offset": 2038,
+                    "arrayLength": 124,
+                    "offset": 2262,
                     "size": 1
                 },
                 {
                     "name": "tripleTriadCards",
                     "type": "uint8",
-                    "arrayLength": 45,
-                    "offset": 2140,
+                    "arrayLength": 57,
+                    "offset": 2386,
                     "size": 1
                 },
                 {
                     "name": "unknown895",
                     "type": "uint8",
-                    "offset": 2185,
+                    "offset": 2443,
                     "size": 1
                 },
                 {
                     "name": "unknown7D7",
                     "type": "uint8",
                     "arrayLength": 15,
-                    "offset": 2186,
+                    "offset": 2444,
                     "size": 1
                 },
                 {
                     "name": "unknown7D8",
                     "type": "uint8",
-                    "offset": 2201,
+                    "offset": 2459,
                     "size": 1
                 },
                 {
-                    "name": "unknown7E6",
+                    "name": "aetherCurrentCompeleteSet2",
                     "type": "uint8",
-                    "arrayLength": 49,
-                    "offset": 2202,
+                    "arrayLength": 3,
+                    "offset": 2460,
+                    "size": 1
+                },
+                {
+                    "name": "aetherCurrentMask",
+                    "type": "uint8",
+                    "arrayLength": 56,
+                    "offset": 2463,
                     "size": 1
                 },
                 {
                     "name": "regionalFolkloreMask",
                     "type": "uint8",
                     "arrayLength": 6,
-                    "offset": 2251,
+                    "offset": 2519,
                     "size": 1
                 },
                 {
                     "name": "orchestrionMask",
                     "type": "uint8",
-                    "arrayLength": 87,
-                    "offset": 2257,
+                    "arrayLength": 99,
+                    "offset": 2525,
                     "size": 1
                 },
                 {
                     "name": "hallOfNoviceCompletion",
                     "type": "uint8",
-                    "arrayLength": 3,
-                    "offset": 2344,
+                    "arrayLength": 5,
+                    "offset": 2624,
                     "size": 1
                 },
                 {
                     "name": "animaCompletion",
                     "type": "uint8",
                     "arrayLength": 11,
-                    "offset": 2347,
+                    "offset": 2629,
                     "size": 1
                 },
                 {
-                    "name": "unknown85E",
+                    "name": "wondrousTailsOrder",
                     "type": "uint8",
-                    "arrayLength": 41,
-                    "offset": 2358,
+                    "arrayLength": 16,
+                    "offset": 2640,
+                    "size": 1
+                },
+                {
+                    "name": "wondrousTailsReward",
+                    "type": "uint8",
+                    "arrayLength": 4,
+                    "offset": 2656,
+                    "size": 1
+                },
+                {
+                    "name": "supplySatisfactionRanks",
+                    "type": "uint8",
+                    "arrayLength": 11,
+                    "offset": 2660,
+                    "size": 1
+                },
+                {
+                    "name": "usedSupplyAllowances",
+                    "type": "uint8",
+                    "arrayLength": 11,
+                    "offset": 2671,
+                    "size": 1
+                },
+                {
+                    "name": "unknownA7A",
+                    "type": "uint8",
+                    "offset": 2682,
                     "size": 1
                 },
                 {
                     "name": "unlockedRaids",
                     "type": "uint8",
                     "arrayLength": 28,
-                    "offset": 2399,
+                    "offset": 2683,
                     "size": 1
                 },
                 {
                     "name": "unlockedDungeons",
                     "type": "uint8",
                     "arrayLength": 18,
-                    "offset": 2427,
+                    "offset": 2711,
                     "size": 1
                 },
                 {
                     "name": "unlockedGuildhests",
                     "type": "uint8",
                     "arrayLength": 10,
-                    "offset": 2445,
+                    "offset": 2729,
                     "size": 1
                 },
                 {
                     "name": "unlockedTrials",
                     "type": "uint8",
                     "arrayLength": 12,
-                    "offset": 2455,
+                    "offset": 2739,
                     "size": 1
                 },
                 {
                     "name": "unlockedPvp",
                     "type": "uint8",
                     "arrayLength": 5,
-                    "offset": 2467,
+                    "offset": 2751,
+                    "size": 1
+                },
+                {
+                    "name": "pvpPadding",
+                    "type": "uint8",
+                    "arrayLength": 2,
+                    "offset": 2756,
                     "size": 1
                 },
                 {
                     "name": "clearedRaids",
                     "type": "uint8",
                     "arrayLength": 28,
-                    "offset": 2472,
+                    "offset": 2758,
                     "size": 1
                 },
                 {
                     "name": "clearedDungeons",
                     "type": "uint8",
                     "arrayLength": 18,
-                    "offset": 2500,
+                    "offset": 2786,
                     "size": 1
                 },
                 {
                     "name": "clearedGuildhests",
                     "type": "uint8",
                     "arrayLength": 10,
-                    "offset": 2518,
+                    "offset": 2804,
                     "size": 1
                 },
                 {
                     "name": "clearedTrials",
                     "type": "uint8",
                     "arrayLength": 12,
-                    "offset": 2528,
+                    "offset": 2814,
                     "size": 1
                 },
                 {
                     "name": "clearedPvp",
                     "type": "uint8",
                     "arrayLength": 5,
-                    "offset": 2540,
+                    "offset": 2826,
+                    "size": 1
+                },
+                {
+                    "name": "clearedPvpPadding",
+                    "type": "uint8",
+                    "arrayLength": 2,
+                    "offset": 2831,
                     "size": 1
                 },
                 {
                     "name": "unknown948",
                     "type": "uint8",
                     "arrayLength": 15,
-                    "offset": 2545,
+                    "offset": 2833,
                     "size": 1
                 }
             ],
-            "size": 2560
+            "size": 2848
         },
         {
             "name": "FFXIVIpcPlayerStats",

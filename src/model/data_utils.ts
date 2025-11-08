@@ -53,6 +53,22 @@ export function getOpcodeName(opcode: number, dir: boolean): string | null {
     return null;
 }
 
+export function getNameOpcode(name: string): number | undefined {
+    const list = opcodes as OpcodeList[];
+
+    for (const entry of list) {
+        if (entry.region !== "CN") continue;
+
+        const opcode = entry.lists.ClientZoneIpcType.find((item) => item.name.localeCompare(name, undefined, { sensitivity: 'base' }) === 0)?.opcode;
+        if (opcode) return opcode;
+
+        const opcode2 = entry.lists.ServerZoneIpcType.find((item) => item.name.localeCompare(name, undefined, { sensitivity: 'base' }) === 0)?.opcode;
+        if (opcode2) return opcode2;
+    }
+
+    return undefined;
+}
+
 const extraEnum = extraEnums as { [key: string]: { [key: number]: string | null } };
 const nameDatabase = nameDb as { [key: string]: { [key: number]: string } };
 
@@ -76,6 +92,7 @@ const keyMapping: { [key: string]: string } = {
     "MarketBoardSearchResult.itemCatalogId": "ItemId",
     "FFXIVIpcExamine.catalogId": "ItemId",
     "FFXIVIpcExamine.appearanceCatalogId": "ItemId",
+    "FFXIVIpcPlayerSetup.useBaitCatalogId": "ItemId",
     "FFXIVIpcSystemLogMessage.messageId": "LogMessage",
     "FFXIVIpcUpdateClassInfo.classId": "ClassJob",
     "FFXIVIpcPlayerClassInfo.classId": "ClassJob",

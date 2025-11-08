@@ -959,14 +959,14 @@ namespace Sapphire::Network::Packets::Server
     uint32_t unknown1C;
     uint32_t fishCaught;
     uint32_t useBaitCatalogId;
-    uint32_t unknown28;
+    uint32_t spearfishCaught;
     uint16_t unknownPvp2C;
     uint16_t unknown2E;
     uint32_t pvpFrontlineOverallCampaigns;
-    uint32_t unknownTimestamp34;
-    uint32_t unknownTimestamp38;
-    uint32_t unknown3C;
-    uint32_t unknown40;
+    uint32_t squadronMissionFinishAt;
+    uint32_t squadronTrainingFinishAt;
+    uint8_t wondrousTailsStatus[4];
+    uint32_t wondrousTailsFlags;
     uint32_t unknown44;
     float companionTimePassed;
     uint32_t unknown4C;
@@ -974,14 +974,20 @@ namespace Sapphire::Network::Packets::Server
     uint16_t unknownPvp52[4];
     uint16_t pvpSeriesExp;
     uint16_t playerCommendations; // verified
-    uint16_t unknown64[8];
+    uint16_t unknown64[2];
+    uint16_t pvpFrontlineWeeklyMatches;
+    uint16_t unknown68;
+    uint16_t activeGrandCompanyExpedition;
+    uint16_t activeGrandCompanyTraining;
+    uint16_t unknown6E;
+    uint16_t wondrousTailsCompleted;
     uint16_t pvpRivalWingsTotalMatches;
     uint16_t pvpRivalWingsTotalVictories;
     uint16_t pvpRivalWingsWeeklyMatches;
     uint16_t pvpRivalWingsWeeklyVictories;
     uint8_t maxLevel; // verified
     uint8_t expansion; // verified
-    uint8_t unknown76;
+    uint8_t premiumSaddlebag;
     uint8_t unknown77;
     uint8_t unknown78;
     uint8_t race; // verified
@@ -993,16 +999,21 @@ namespace Sapphire::Network::Packets::Server
     uint8_t namedayMonth; // verified
     uint8_t namedayDay; // verified
     uint8_t cityState; // verified
-    uint8_t homepoint; // verified
-    uint8_t unknown8D[3];
+    uint16_t homepoint; // verified
+    uint8_t questSpecialFlags;
+    uint8_t petData;
     uint8_t companionRank; // verified
     uint8_t companionStars; // verified
     uint8_t companionSp; // verified
-    uint8_t companionUnk93;
+    uint8_t companionActiveCommand;
     uint8_t companionColor; // verified
     uint8_t companionFavFeed;
     uint8_t favAetheryteCount; // verified
-    uint8_t unknown97[5];
+    uint8_t dailyQuestSeed;
+    uint8_t unknown97;
+    uint8_t weeklyLockoutInfo;
+    uint8_t relicId;
+    uint8_t relicNoteId;
     uint8_t sightseeing21To80Unlock;
     uint8_t sightseeingHeavenswardUnlock;
     uint8_t unknown9E[26];
@@ -1011,63 +1022,84 @@ namespace Sapphire::Network::Packets::Server
     uint32_t unknownPvp124;
     uint32_t pvpExp;
     uint32_t pvpFrontlineOverallRanks[3];
-    uint32_t unknown138;
-    uint16_t levels[32]; // verified
-    uint8_t unknown194[218];
+    uint32_t unknown138[4];
+    uint16_t levels[35]; // verified
+    uint16_t activeFestivalIds[4];
+    uint16_t activeFestivalPhases[4];
+    uint8_t unknown194[176];
+    uint16_t beastReputationValue[20];
+    uint16_t questManagerUnknown[8];
+    uint16_t supplySatisfaction[11];
     char companionName[21]; // verified
     uint8_t companionDefRank; // verified
     uint8_t companionAttRank; // verified
     uint8_t companionHealRank; // verified
-    uint8_t mountGuideMask[33];
-    uint8_t ornamentMask[4];
-    uint8_t unknown281[23];
+    uint8_t mountGuideMask[41];
+    uint8_t ornamentMask[8];
+    uint8_t glassesStylesMask[5];
+    uint8_t framerKitsMask[33];
     char name[32]; // verified
-    uint8_t unknown293[16];
-    uint8_t unknown2A3[16];
-    uint8_t unlockBitmask[64];
-    uint8_t aetheryte[26];
-    uint16_t favoriteAetheryteIds[4]; // verified
+    uint8_t unknown293[16]; // online ID
+    uint8_t unknown2A3[16]; // online ID
+    uint8_t unlockBitmask[92];
+    uint8_t aetheryte[31];
+    uint16_t favoriteAetheryteIds[4]; // verified, 990 in 7.3
     uint16_t freeAetheryteId;
     uint16_t psPlusFreeAetheryteId;
-    uint8_t discovery[480]; // verified
-    uint8_t howto[36]; // verified
-    uint8_t unknown554[4];
-    uint8_t minions[60];
+    uint8_t discovery[508]; // verified @1002, length unknown
+    uint8_t howto[37]; // verified
+    uint8_t minions[71];
     uint8_t chocoboTaxiMask[12];
-    uint8_t watchedCutscenes[159];
-    uint8_t companionBardingMask[12];
-    uint8_t companionEquippedHead; // verified
+    uint8_t watchedCutscenes[174];
+    uint8_t companionBardingMask[14];
+    uint8_t companionEquippedHead; // verified @ 1818 
     uint8_t companionEquippedBody; // verified
     uint8_t companionEquippedLegs; // verified
-    uint8_t unknownMask[287];
+    uint32_t unknown73d;
+    uint8_t unknown741[11];
+    uint8_t caughtFishes[182]; // @1836, fish logs
+    uint8_t unlockedFishingSpots[42];
+    uint8_t caughtSpearfish[38];
+    uint8_t unlockedSpearfishingSpots[9];
+    uint8_t rankGrandCompany[3];
+    uint8_t beastReputationRank[20];
+    uint8_t contentRouletteCompletion[10];
+    uint8_t unknown6f7[2];
     uint8_t pose[7]; // verified
-    uint8_t unknown6DF[3];
-    uint8_t challengeLogComplete[13];
-    uint8_t secretRecipeBookMask[12];
-    uint8_t unknownMask6F7[29];
+    uint8_t playerStateFlags[3];
+    uint8_t contentsNoteCompletionFlags[13];
+    uint8_t secretRecipeBookMask[14];
+    uint8_t unknownMask879[28];
     uint8_t relicCompletion[12];
-    uint8_t sightseeingMask[37];
-    uint8_t huntingMarkMask[102];
-    uint8_t tripleTriadCards[45];
+    uint8_t sightseeingMask[43];
+    uint8_t huntingMarkMask[124];
+    uint8_t tripleTriadCards[57];
     uint8_t unknown895;
     uint8_t unknown7D7[15];
     uint8_t unknown7D8;
-    uint8_t unknown7E6[49];
+    uint8_t aetherCurrentCompeleteSet2[3];
+    uint8_t aetherCurrentMask[56];
     uint8_t regionalFolkloreMask[6];
-    uint8_t orchestrionMask[87];
-    uint8_t hallOfNoviceCompletion[3]; // verified
+    uint8_t orchestrionMask[99];
+    uint8_t hallOfNoviceCompletion[5]; // verified
     uint8_t animaCompletion[11];
-    uint8_t unknown85E[41];
+    uint8_t wondrousTailsOrder[16];
+    uint8_t wondrousTailsReward[4];
+    uint8_t supplySatisfactionRanks[11];
+    uint8_t usedSupplyAllowances[11];
+    uint8_t unknownA7A;
     uint8_t unlockedRaids[28]; // verified
     uint8_t unlockedDungeons[18]; // verified
     uint8_t unlockedGuildhests[10]; // verified
     uint8_t unlockedTrials[12]; // verified
     uint8_t unlockedPvp[5];
+    uint8_t pvpPadding[2];
     uint8_t clearedRaids[28]; // verified
     uint8_t clearedDungeons[18]; // verified
     uint8_t clearedGuildhests[10]; // verified
     uint8_t clearedTrials[12]; // verified
     uint8_t clearedPvp[5];
+    uint8_t clearedPvpPadding[2];
     uint8_t unknown948[15];
   };
 

@@ -20,7 +20,7 @@
     <ul>
       <li>
         <span class="inspect-name">Offset</span>
-        {selectedIndex} ({padHex(selectedIndex, 2)}h)
+        {selectedIndex} ({padHex(selectedIndex, 2)}h, {selectedIndex - 32} without header)
       </li>
       <li>
         <span class="inspect-name">uint8</span>
