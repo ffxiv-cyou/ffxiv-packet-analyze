@@ -6,8 +6,7 @@
     bytesToHex,
     epochToTimeString,
     padHex,
-    getOpcodeName,
-    getNameOpcode,
+    OpcodeRepo,
   } from "../model/data_utils";
   import PacketFields from "./PacketFields.svelte";
   import { onMount } from "svelte";
@@ -21,11 +20,13 @@
   let filteredPackets: Packet[] = $state.raw([]);
   let opcodeFilter: string = $state("");
 
+  const repo = new OpcodeRepo("CN");
+
   function filterToOpcode(filter: string): number | undefined {
     let opcode = parseInt(filter);
     if (opcode) return opcode;
 
-    let opcodeByName = getNameOpcode(filter);
+    let opcodeByName = repo.getNameOpcode(filter);
     if (opcodeByName) return opcodeByName;
 
     return undefined;
@@ -119,6 +120,13 @@
     target?.parentElement?.focus();
   }
 
+  function handleSearchKey(event: KeyboardEvent) {
+    if (event.key === "Enter") {
+      findNext();
+      event.preventDefault();
+    }
+  }
+
   function handleInspectKey(event: KeyboardEvent) {
     switch (event.key) {
       case "ArrowLeft":
@@ -161,46 +169,56 @@
   });
 </script>
 
-<div class="viewer-filter">
-  <span>
-    Count: {packets.length}
-  </span>
-  <label>
-    Opcode:
-    <input type="text" bind:value={opcodeFilter} placeholder="enter opcode" />
-  </label>
-  <button type="button" onclick={findNext}>next</button>
-  <button type="button" onclick={findPrev}>prev</button>
-</div>
-
 <div class="packet-viewer">
-  <div
-    class="packet-list"
-    role="listbox"
-    tabindex="-1"
-    onkeydown={handleKeyDown}
-  >
-    <SvelteVirtualList items={filteredPackets} bind:this={listRef}>
-      {#snippet renderItem(item, index)}
-        <button
-          id={"packet-" + index}
-          class={["packet-item", packetIdx === index ? "selected" : ""]}
-          onclick={() => setPacket(index)}
-        >
-          <span class="packet-dir">{item.dir ? "C" : "S"}</span>
-          <span class="packet-time">{epochToTimeString(item.epoch)}</span>
-          <span class="packet-len">{padHex(item.data.length, 3)}h</span>
-          <span class="packet-opcode">{padHex(item.opcode, 4)}</span>
-          <span class="packet-data">{bytesToHex(item.data.slice(32, 64))}</span>
-          {#if getOpcodeName(item.opcode, item.dir)}
-            <span class="packet-name">
-              {getOpcodeName(item.opcode, item.dir)}
-            </span>
-          {/if}
-        </button>
-      {/snippet}
-    </SvelteVirtualList>
+  <div class="packet-left">
+    <div class="viewer-filter">
+      <span class="label"> Count: </span>
+      <span class="value">
+        {filteredPackets.length}
+      </span>
+      <label>
+        <span class="label"> Opcode: </span>
+        <input
+          type="text"
+          bind:value={opcodeFilter}
+          onkeypress={handleSearchKey}
+          placeholder="enter opcode"
+        />
+      </label>
+      <button type="button" onclick={findPrev}>↑</button>
+      <button type="button" onclick={findNext}>↓</button>
+    </div>
+    <div
+      class="packet-list"
+      role="listbox"
+      tabindex="-1"
+      onkeydown={handleKeyDown}
+    >
+      <SvelteVirtualList items={filteredPackets} bind:this={listRef}>
+        {#snippet renderItem(item, index)}
+          <button
+            id={"packet-" + index}
+            class={["packet-item", packetIdx === index ? "selected" : ""]}
+            onclick={() => setPacket(index)}
+          >
+            <span class="packet-dir">{item.dir ? "C" : "S"}</span>
+            <span class="packet-time">{epochToTimeString(item.epoch)}</span>
+            <span class="packet-len">{padHex(item.data.length, 3)}h</span>
+            <span class="packet-opcode">{padHex(item.opcode, 4)}</span>
+            <span class="packet-data"
+              >{bytesToHex(item.data.slice(32, 64))}</span
+            >
+            {#if repo.getOpcodeName(item.opcode, item.dir)}
+              <span class="packet-name">
+                {repo.getOpcodeName(item.opcode, item.dir)}
+              </span>
+            {/if}
+          </button>
+        {/snippet}
+      </SvelteVirtualList>
+    </div>
   </div>
+
   <div class="packet-detail">
     {#if packet}
       <div class="packet-header">
@@ -227,12 +245,13 @@
           >
         {/each}
       </div>
-      <div class="packet-info"></div>
-      {#if selectedIndex < 0}
-        <PacketFields {packet} />
-      {:else}
-        <ByteInspector {dw} {selectedIndex} />
-      {/if}
+      <div class="packet-info">
+        {#if selectedIndex < 0}
+          <PacketFields {packet} {repo} />
+        {:else}
+          <ByteInspector {dw} {selectedIndex} />
+        {/if}
+      </div>
     {/if}
   </div>
 </div>
@@ -253,19 +272,24 @@
     }
 
     & .packet-info {
+      max-height: 26em;
+      overflow: auto;
+    }
+
+    & .packet-info,
+    & .packet-hex {
       font-size: 12px;
+      padding: 10px;
+      overflow-x: auto;
+      width: 31em;
+      border: 1px solid #ccc;
+      font-family: "Fira Code", monospace;
     }
 
     & .packet-hex {
       background-color: #f0f0f0;
-      padding: 10px;
-      border: 1px solid #ccc;
-      font-family: "Fira Code", monospace;
-      font-size: 12px;
-      overflow-x: auto;
       line-break: anywhere;
-      width: 31em;
-      height: 20em;
+      height: 12lh;
 
       & .hex-item {
         button& {
@@ -302,13 +326,32 @@
     }
   }
 
+  .packet-left {
+    width: 1000px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .viewer-filter {
+    height: 32px;
+    text-align: left;
+
+    & button {
+      padding: 2px 8px;
+    }
+
+    .label {
+      margin-left: 10px;
+      font-weight: 600;
+    }
+  }
+
   .packet-list {
     overflow-y: auto;
     border: 1px solid #ccc;
     background-color: #f9f9f9;
     font-size: 12px;
-    width: 1000px;
-    margin-top: 32px;
+    flex: 1;
 
     & .packet-item {
       padding: 5px 10px;
@@ -353,7 +396,6 @@
       flex-grow: 1;
     }
   }
-
   .packet-dir {
     font-weight: bold;
   }

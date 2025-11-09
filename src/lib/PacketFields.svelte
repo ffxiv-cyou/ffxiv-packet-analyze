@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Packet } from "overlay-toolkit-lib";
-  import { getOpcodeName, padHex } from "../model/data_utils";
+  import { OpcodeRepo, padHex } from "../model/data_utils";
 
   import type { IPCData } from "../model/ipc_struct";
   import ipcStructs from "../data/ipc_structs.json";
@@ -9,12 +9,14 @@
 
   let {
     packet,
+    repo,
   }: {
     packet: Packet;
+    repo: OpcodeRepo;
   } = $props();
 
   let ipcNameAlias: Record<string, string> = ipcAlias as Record<string, string>;
-  let ipcTypeName = $derived(getOpcodeName(packet.opcode, packet.dir));
+  let ipcTypeName = $derived(repo.getOpcodeName(packet.opcode, packet.dir));
   let ipcTypeAlias = $derived(
     ipcTypeName ? ipcNameAlias[ipcTypeName] || ipcTypeName : null,
   );
@@ -66,10 +68,4 @@
 </div>
 
 <style>
-  .packet-fields {
-    font-family: monospace;
-    font-size: 14px;
-    padding: 8px;
-    border-bottom: 1px solid #ccc;
-  }
 </style>

@@ -37,36 +37,68 @@ export function bytesToHex(data: Uint8Array): string {
         .join(" ");
 }
 
-export function getOpcodeName(opcode: number, dir: boolean): string | null {
-    const list = opcodes as OpcodeList[];
-
-    for (const entry of list) {
-        if (entry.region !== "CN") continue;
-
-        const l = dir
-            ? entry.lists.ClientZoneIpcType
-            : entry.lists.ServerZoneIpcType;
-        const name = l.find((item) => item.opcode === opcode)?.name;
-        if (name) return name;
-    }
-
-    return null;
+interface OpcodeMapping {
+    old: number[] | string[];
+    new: number[] | string[];
 }
 
-export function getNameOpcode(name: string): number | undefined {
-    const list = opcodes as OpcodeList[];
+export class OpcodeRepo {
+    private opcodeClientName: Map<number, string>;
+    private opcodeServName: Map<number, string>;
 
-    for (const entry of list) {
-        if (entry.region !== "CN") continue;
+    constructor(region: string, mappings: OpcodeMapping[] = []) {
+        const opcodeMap = new Map<number, number>();
+        for (const mapping of mappings) {
+            for (let i = 0; i < Math.min(mapping.old.length, mapping.new.length); i++) {
+                const oldOpcode = mapping.old[i];
+                const newOpcode = mapping.new[i];
+                if (typeof oldOpcode === "string" || typeof newOpcode === "string") {
+                    opcodeMap.set(parseInt(oldOpcode as string), parseInt(newOpcode as string));
+                }    
+                if (typeof oldOpcode === "number" && typeof newOpcode === "number") {
+                    opcodeMap.set(oldOpcode, newOpcode);
+                }
+            }
+        }
 
-        const opcode = entry.lists.ClientZoneIpcType.find((item) => item.name.localeCompare(name, undefined, { sensitivity: 'base' }) === 0)?.opcode;
-        if (opcode) return opcode;
+        const list = opcodes as OpcodeList[];
+        const entry = list.find((e) => e.region === region);
+        if (!entry) throw new Error(`Opcode list for region ${region} not found`);
 
-        const opcode2 = entry.lists.ServerZoneIpcType.find((item) => item.name.localeCompare(name, undefined, { sensitivity: 'base' }) === 0)?.opcode;
-        if (opcode2) return opcode2;
+        this.opcodeClientName = new Map<number, string>();
+        this.opcodeServName = new Map<number, string>();
+
+        for (const item of entry.lists.ClientZoneIpcType) {
+            const mappedOpcode = opcodeMap.get(item.opcode) ?? item.opcode;
+            this.opcodeClientName.set(mappedOpcode, item.name);
+        }
+        for (const item of entry.lists.ServerZoneIpcType) {
+            const mappedOpcode = opcodeMap.get(item.opcode) ?? item.opcode;
+            this.opcodeServName.set(mappedOpcode, item.name);
+        }
     }
 
-    return undefined;
+    public getOpcodeName(opcode: number, dir: boolean): string | undefined {
+        if (dir) {
+            return this.opcodeClientName.get(opcode) || undefined;
+        } else {
+            return this.opcodeServName.get(opcode) || undefined;
+        }
+    }
+
+    public getNameOpcode(name: string): number | undefined {
+        for (const [opcode, opname] of this.opcodeClientName.entries()) {
+            if (opname.localeCompare(name, undefined, { sensitivity: 'base' }) === 0) {
+                return opcode;
+            }
+        }
+        for (const [opcode, opname] of this.opcodeServName.entries()) {
+            if (opname.localeCompare(name, undefined, { sensitivity: 'base' }) === 0) {
+                return opcode;
+            }
+        }
+        return undefined;
+    }
 }
 
 const extraEnum = extraEnums as { [key: string]: { [key: number]: string | null } };

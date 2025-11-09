@@ -19,7 +19,7 @@
   {#if selectedIndex >= 0 && selectedIndex < dw.byteLength}
     <ul>
       <li>
-        <span class="inspect-name">Offset</span>
+        <span class="inspect-name">offset</span>
         {selectedIndex} ({padHex(selectedIndex, 2)}h, {selectedIndex - 32} without header)
       </li>
       <li>
@@ -88,7 +88,6 @@
 
 <style>
   .packet-inspect {
-    padding: 10px;
     font-family: monospace;
 
     & ul {
@@ -103,7 +102,7 @@
 
     & .inspect-name {
       display: inline-block;
-      font-weight: 500;
+      font-weight: 600;
       width: 60px;
       margin-right: 10px;
       &::after {

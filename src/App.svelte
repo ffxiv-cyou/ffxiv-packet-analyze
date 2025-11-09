@@ -3,6 +3,7 @@
   import type { Packet } from "overlay-toolkit-lib";
   import PacketViewer from "./lib/PacketViewer.svelte";
   import { createPcapFile, importPcapFile } from "./model/pcap";
+  import { importFFXIVMonData } from "./model/ffxivmon";
 
   overlayToolkit.Start();
 
@@ -42,17 +43,34 @@
       const reader = new FileReader();
       reader.onload = (e) => {
         const buffer = e.target?.result as ArrayBuffer;
-        const importedPackets = importPcapFile(buffer);
-        packets = importedPackets.map((p) => ({
-          epoch: p.epoch,
-          dir: p.dir,
-          data: p.data,
-          opcode: p.opcode,
-          type: "imported",
-          name: "imported",
-          conn: "",
-          length: p.data.length,
-        }));
+        if (file.name.endsWith(".pcap")) {
+          const importedPackets = importPcapFile(buffer);
+          packets = importedPackets.map((p) => ({
+            epoch: p.epoch,
+            dir: p.dir,
+            data: p.data,
+            opcode: p.opcode,
+            type: "imported",
+            name: "imported",
+            conn: "",
+            length: p.data.length,
+          }));
+          return;
+        }
+        if (file.name.endsWith(".xml")) {
+          const importedPackets = importFFXIVMonData(buffer);
+          packets = importedPackets.map((p) => ({
+            epoch: p.epoch,
+            dir: p.dir,
+            data: p.data,
+            opcode: p.opcode,
+            type: "imported",
+            name: "imported",
+            conn: "",
+            length: p.data.length,
+          }));
+          return;
+        }
       };
       reader.readAsArrayBuffer(file);
     }
@@ -60,8 +78,7 @@
 </script>
 
 <main>
-  <h1>Vite + Svelte</h1>
-
+  <h1>FFXIV Packet Analyzer</h1>
   <button onclick={startCapture}>Start Capture</button>
   <button onclick={stopCapture}>Stop Capture</button>
   <button onclick={clearPackets}>Clear Packets</button>
@@ -70,7 +87,7 @@
   <input
     type="file"
     id="file"
-    accept=".pcap"
+    accept=".pcap,.xml"
     onchange={importPackets}
     name="pcapFile"
   />

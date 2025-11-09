@@ -1421,10 +1421,9 @@ namespace Sapphire::Network::Packets::Server
     uint16_t padding;
     uint32_t flags;
     uint32_t param3;
-    uint8_t param4;
-    uint8_t padding1[3];
-    uint32_t param5;
-    uint8_t unknown[8];
+    uint32_t paramSize;
+    uint32_t param[2];
+    uint8_t unknown[4];
   };
 
   struct FFXIVIpcEventPlay16 : FFXIVIpcBasePacket< EventPlay16 >
@@ -1435,8 +1434,7 @@ namespace Sapphire::Network::Packets::Server
     uint16_t padding;
     uint32_t flags;
     uint32_t param3;
-    uint8_t paramSize;
-    uint8_t padding1[3];
+    uint32_t paramSize;
     uint32_t param[16];
     uint32_t padding2;
   };
