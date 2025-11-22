@@ -21,6 +21,7 @@
   let filteredPackets: Packet[] = $state.raw([]);
   let opcodeFinder: string = $state("");
   let opcodeFilter: string = $state("");
+  let selfOnly: boolean = $state(false);
 
   const repo = new OpcodeRepo("CN", opcodeMap);
 
@@ -161,8 +162,10 @@
   }
 
   let lastFilter: string = "";
+  let lastSelfOnly: boolean = false;
   $effect(() => {
     opcodeFilter;
+    selfOnly;
     sync();
   });
 
@@ -173,9 +176,10 @@
     if (lastPacketsLength > packets.length) {
       reset = true;
     }
-    if (opcodeFilter !== lastFilter) {
+    if (opcodeFilter !== lastFilter || selfOnly !== lastSelfOnly) {
       reset = true;
       lastFilter = opcodeFilter;
+      lastSelfOnly = selfOnly;
     }
     if (!reset && lastPacketsLength === packets.length) {
       return;
@@ -193,6 +197,13 @@
 
     for (let i = lastPacketsLength; i < packets.length; i++) {
       const packet = packets[i];
+      if (selfOnly && packet.data.byteLength >= 32) {
+        let match = true;
+        for (let j = 0; j < 4; j++) {
+          match &&= packet.data.at(4 + j) === packet.data.at(8 + j);
+        }
+        if (!match) continue;
+      }
       if (filters.length === 0 || filters.includes(packet.opcode)) {
         filteredPackets.push(packet);
       }
@@ -236,6 +247,10 @@
           bind:value={opcodeFilter}
           placeholder="list separate by comma"
         />
+      </label>
+      <label>
+        <input type="checkbox" bind:checked={selfOnly} />
+        <span class="label">Self</span>
       </label>
     </div>
     <div

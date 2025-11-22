@@ -5,7 +5,8 @@
     fieldHasAlias,
     getFieldAlias,
   } from "../model/data_utils";
-  import type { IPCStructField } from "../model/ipc_struct";
+  import type { IPCStructField, IPCTypeAlias } from "../model/ipc_struct";
+  import ipcStructs from "../data/ipc_structs.json";
   import Self from "./FieldViewer.svelte";
 
   let {
@@ -13,11 +14,15 @@
     offset,
     field,
     type,
+    subType,
+    subValue,
   }: {
     dw: DataView;
     offset: number;
     field: IPCStructField;
     type: string;
+    subType?: string;
+    subValue?: number;
   } = $props();
 
   function getNumberValue(i: number): number | bigint | undefined {
@@ -44,6 +49,33 @@
         return dw.getFloat64(offset + i * 8, true);
     }
     return undefined;
+  }
+
+  function getEnumRawValue(i: number): number | undefined {
+    switch (field.size) {
+      case 1:
+        return dw.getUint8(offset + i);
+      case 2:
+        return dw.getUint16(offset + i * 2, true);
+      case 4:
+        return dw.getUint32(offset + i * 4, true);
+    }
+    return undefined;
+  }
+
+  const enums = ipcStructs.enums as IPCTypeAlias[];
+
+  function getEnumValue(i: number): string | undefined {
+    const enumDef = enums.find((e) => e.name === field.type);
+    if (!enumDef) {
+      return undefined;
+    }
+    const rawValue = getEnumRawValue(i);
+    const enumName = enumDef.enum[rawValue as number];
+    if (enumName !== undefined) {
+      return enumName + ` (${rawValue})`;
+    }
+    return rawValue?.toString();
   }
 </script>
 
@@ -72,15 +104,23 @@
                 type={field.type}
               />
             {/each}
+          {:else if getEnumValue(i) !== undefined}
+            <span>{getEnumValue(i)}</span>
           {:else if getNumberValue(i) !== undefined}
             <span>{getNumberValue(i)}</span>
           {:else}
             <span>Unsupported field type: {field.type}</span>
           {/if}
         </div>
-        {#if fieldHasAlias(type, field.name)}
+        {#if fieldHasAlias(type, field.name, subType, subValue)}
           <div class="field-alias">
-            {getFieldAlias(type, field.name, getNumberValue(i) as number)}
+            {getFieldAlias(
+              type,
+              field.name,
+              getNumberValue(i) as number,
+              subType,
+              subValue,
+            )}
           </div>
         {/if}
       {/each}
