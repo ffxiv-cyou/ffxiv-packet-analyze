@@ -8026,29 +8026,23 @@
                     "size": 4
                 },
                 {
-                    "name": "param4",
-                    "type": "uint8",
-                    "offset": 24,
-                    "size": 1
-                },
-                {
-                    "name": "padding1",
-                    "type": "uint8",
-                    "arrayLength": 3,
-                    "offset": 25,
-                    "size": 1
-                },
-                {
-                    "name": "param5",
+                    "name": "paramSize",
                     "type": "uint32",
+                    "offset": 24,
+                    "size": 4
+                },
+                {
+                    "name": "param",
+                    "type": "uint32",
+                    "arrayLength": 2,
                     "offset": 28,
                     "size": 4
                 },
                 {
                     "name": "unknown",
                     "type": "uint8",
-                    "arrayLength": 8,
-                    "offset": 32,
+                    "arrayLength": 4,
+                    "offset": 36,
                     "size": 1
                 }
             ],
@@ -8096,16 +8090,9 @@
                 },
                 {
                     "name": "paramSize",
-                    "type": "uint8",
+                    "type": "uint32",
                     "offset": 24,
-                    "size": 1
-                },
-                {
-                    "name": "padding1",
-                    "type": "uint8",
-                    "arrayLength": 3,
-                    "offset": 25,
-                    "size": 1
+                    "size": 4
                 },
                 {
                     "name": "param",
@@ -12247,7 +12234,7 @@
             "ipcName": "SystemLogMessage",
             "fields": [
                 {
-                    "name": "unknown1",
+                    "name": "eventId",
                     "type": "uint32",
                     "offset": 0,
                     "size": 4
@@ -12259,19 +12246,19 @@
                     "size": 4
                 },
                 {
-                    "name": "param1",
+                    "name": "paramSize",
                     "type": "uint32",
                     "offset": 8,
                     "size": 4
                 },
                 {
-                    "name": "param2",
+                    "name": "param1",
                     "type": "uint32",
                     "offset": 12,
                     "size": 4
                 },
                 {
-                    "name": "param3",
+                    "name": "param2",
                     "type": "uint32",
                     "offset": 16,
                     "size": 4
@@ -12370,16 +12357,9 @@
                 },
                 {
                     "name": "paramSize",
-                    "type": "uint8",
+                    "type": "uint32",
                     "offset": 24,
-                    "size": 1
-                },
-                {
-                    "name": "padding1",
-                    "type": "uint8",
-                    "arrayLength": 3,
-                    "offset": 25,
-                    "size": 1
+                    "size": 4
                 },
                 {
                     "name": "param",
@@ -12396,6 +12376,79 @@
                 }
             ],
             "size": 48
+        },
+        {
+            "name": "FFXIVIpcGuessTargetAction",
+            "ipcName": "GuessTargetAction",
+            "fields": [
+                {
+                    "name": "unknown00",
+                    "type": "uint16",
+                    "offset": 0,
+                    "size": 2
+                },
+                {
+                    "name": "unknown02",
+                    "type": "uint16",
+                    "offset": 2,
+                    "size": 2
+                },
+                {
+                    "name": "actionId",
+                    "type": "uint32",
+                    "offset": 4,
+                    "size": 4
+                },
+                {
+                    "name": "sequence",
+                    "type": "uint16",
+                    "offset": 8,
+                    "size": 2
+                },
+                {
+                    "name": "unknown0a",
+                    "type": "uint16",
+                    "offset": 10,
+                    "size": 2
+                },
+                {
+                    "name": "unknown0c",
+                    "type": "uint16",
+                    "offset": 12,
+                    "size": 2
+                },
+                {
+                    "name": "unknown0e",
+                    "type": "uint16",
+                    "offset": 14,
+                    "size": 2
+                },
+                {
+                    "name": "targetId",
+                    "type": "uint32",
+                    "offset": 16,
+                    "size": 4
+                },
+                {
+                    "name": "padding14",
+                    "type": "uint32",
+                    "offset": 20,
+                    "size": 4
+                },
+                {
+                    "name": "param1",
+                    "type": "uint32",
+                    "offset": 24,
+                    "size": 4
+                },
+                {
+                    "name": "unknown1c",
+                    "type": "uint32",
+                    "offset": 28,
+                    "size": 4
+                }
+            ],
+            "size": 32
         }
     ],
     "enums": [

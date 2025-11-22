@@ -10,6 +10,7 @@
   } from "../model/data_utils";
   import PacketFields from "./PacketFields.svelte";
   import { onMount } from "svelte";
+  import opcodeMap from "../data/7.3.diff.json";
 
   let {
     packets,
@@ -18,9 +19,10 @@
   } = $props();
 
   let filteredPackets: Packet[] = $state.raw([]);
+  let opcodeFinder: string = $state("");
   let opcodeFilter: string = $state("");
 
-  const repo = new OpcodeRepo("CN");
+  const repo = new OpcodeRepo("CN", opcodeMap);
 
   function filterToOpcode(filter: string): number | undefined {
     let opcode = parseInt(filter);
@@ -33,7 +35,7 @@
   }
 
   function findNext() {
-    const opcode = filterToOpcode(opcodeFilter);
+    const opcode = filterToOpcode(opcodeFinder);
     if (opcode === undefined) return;
 
     for (let i = packetIdx + 1; i < filteredPackets.length; i++) {
@@ -47,7 +49,7 @@
   }
 
   function findPrev() {
-    const opcode = filterToOpcode(opcodeFilter);
+    const opcode = filterToOpcode(opcodeFinder);
     if (opcode === undefined) return;
 
     for (let i = packetIdx - 1; i >= 0; i--) {
@@ -158,8 +160,48 @@
     event.preventDefault();
   }
 
+  let lastFilter: string = "";
+  $effect(() => {
+    opcodeFilter;
+    sync();
+  });
+
+  let lastPacketsLength: number = 0;
+  
   function sync() {
-    if (filteredPackets.length != packets.length) filteredPackets = packets;
+    let reset = false;
+    if (lastPacketsLength > packets.length) {
+      reset = true;
+    }
+    if (opcodeFilter !== lastFilter) {
+      reset = true;
+      lastFilter = opcodeFilter;
+    }
+    if (!reset && lastPacketsLength === packets.length) {
+      return;
+    }
+
+    const filters = opcodeFilter
+      .split(",")
+      .map((f) => filterToOpcode(f.trim()))
+      .filter((f): f is number => f !== undefined);
+
+    if (reset) {
+      filteredPackets.length = 0;
+      lastPacketsLength = 0;
+    }
+
+    for (let i = lastPacketsLength; i < packets.length; i++) {
+      const packet = packets[i];
+      if (filters.length === 0 || filters.includes(packet.opcode)) {
+        filteredPackets.push(packet);
+      }
+    }
+
+    console.log("Syncing packets, total:", packets.length, "filtered:", filteredPackets.length, "index:", lastPacketsLength);
+    lastPacketsLength = packets.length;
+
+    filteredPackets = [...filteredPackets];
   }
 
   let intervalHandler: number | null = null;
@@ -174,19 +216,27 @@
     <div class="viewer-filter">
       <span class="label"> Count: </span>
       <span class="value">
-        {filteredPackets.length}
+        {filteredPackets.length} / {packets.length}
       </span>
       <label>
         <span class="label"> Opcode: </span>
         <input
           type="text"
-          bind:value={opcodeFilter}
+          bind:value={opcodeFinder}
           onkeypress={handleSearchKey}
           placeholder="enter opcode"
         />
       </label>
       <button type="button" onclick={findPrev}>↑</button>
       <button type="button" onclick={findNext}>↓</button>
+      <label>
+        <span class="label"> Filter: </span>
+        <input
+          type="text"
+          bind:value={opcodeFilter}
+          placeholder="list separate by comma"
+        />
+      </label>
     </div>
     <div
       class="packet-list"

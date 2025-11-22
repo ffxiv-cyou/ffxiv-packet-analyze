@@ -22,11 +22,11 @@
 
   struct FFXIVIpcSystemLogMessage : FFXIVIpcBasePacket< SystemLogMessage >
   {
-    uint32_t unknown1;
+    uint32_t eventId;
     uint32_t messageId;
+    uint32_t paramSize;
     uint32_t param1;
     uint32_t param2;
-    uint32_t param3;
     uint32_t padding;
   };
 
@@ -71,3 +71,17 @@
     uint32_t padding;
   };
   
+  struct FFXIVIpcGuessTargetAction : FFXIVIpcBasePacket < GuessTargetAction >
+  {
+    uint16_t unknown00;
+    uint16_t unknown02;
+    uint32_t actionId;
+    uint16_t sequence;
+    uint16_t unknown0a;
+    uint16_t unknown0c;
+    uint16_t unknown0e;
+    uint32_t targetId;
+    uint32_t padding14;
+    uint32_t param1;
+    uint32_t unknown1c;
+  };
