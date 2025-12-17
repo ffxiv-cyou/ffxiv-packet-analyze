@@ -1,12 +1,6 @@
 <script lang="ts">
-  import {
-    bytesToHex,
-    bytesToString,
-    fieldHasAlias,
-    getFieldAlias,
-  } from "../model/data_utils";
+  import { bytesToHex, bytesToString, DataLoader } from "../model/data_utils";
   import type { IPCStructField, IPCTypeAlias } from "../model/ipc_struct";
-  import ipcStructs from "../data/ipc_structs.json";
   import Self from "./FieldViewer.svelte";
 
   let {
@@ -16,6 +10,7 @@
     type,
     subType,
     subValue,
+    repo,
   }: {
     dw: DataView;
     offset: number;
@@ -23,6 +18,7 @@
     type: string;
     subType?: string;
     subValue?: number;
+    repo: DataLoader;
   } = $props();
 
   function getNumberValue(i: number): number | bigint | undefined {
@@ -63,16 +59,10 @@
     return undefined;
   }
 
-  const enums = ipcStructs.enums as IPCTypeAlias[];
-
   function getEnumValue(i: number): string | undefined {
-    const enumDef = enums.find((e) => e.name === field.type);
-    if (!enumDef) {
-      return undefined;
-    }
     const rawValue = getEnumRawValue(i);
-    const enumName = enumDef.enum[rawValue as number];
-    if (enumName !== undefined) {
+    const enumName = repo.getEnumValue(field.type, rawValue as number);
+    if (enumName !== null) {
       return enumName + ` (${rawValue})`;
     }
     return rawValue?.toString();
@@ -102,6 +92,7 @@
                 offset={offset + (subField.offset || 0) + i * (field.size || 1)}
                 field={subField}
                 type={field.type}
+                {repo}
               />
             {/each}
           {:else if getEnumValue(i) !== undefined}
@@ -112,9 +103,9 @@
             <span>Unsupported field type: {field.type}</span>
           {/if}
         </div>
-        {#if fieldHasAlias(type, field.name, subType, subValue)}
+        {#if repo.fieldHasAlias(type, field.name, subType, subValue)}
           <div class="field-alias">
-            {getFieldAlias(
+            {repo.getFieldAlias(
               type,
               field.name,
               getNumberValue(i) as number,

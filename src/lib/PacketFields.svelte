@@ -1,25 +1,19 @@
 <script lang="ts">
   import type { Packet } from "overlay-toolkit-lib";
-  import { OpcodeRepo, padHex, subTypeKey } from "../model/data_utils";
+  import { DataLoader, padHex, subTypeKey } from "../model/data_utils";
 
-  import type { IPCData } from "../model/ipc_struct";
-  import ipcStructs from "../data/ipc_structs.json";
   import FieldViewer from "./FieldViewer.svelte";
-  import ipcAlias from "../data/opcode_alias.json";
 
   let {
     packet,
     repo,
   }: {
     packet: Packet;
-    repo: OpcodeRepo;
+    repo: DataLoader;
   } = $props();
 
-  let ipcNameAlias: Record<string, string> = ipcAlias as Record<string, string>;
   let ipcTypeName = $derived(repo.getOpcodeName(packet.opcode, packet.dir));
-  let ipcTypeAlias = $derived(
-    ipcTypeName ? ipcNameAlias[ipcTypeName] || ipcTypeName : null,
-  );
+  let ipcStruct = $derived(repo.getIpcStruct(ipcTypeName || ""));
 
   let dw = $derived(
     new DataView(
@@ -29,12 +23,6 @@
     ),
   );
 
-  let structs: IPCData = ipcStructs as IPCData;
-  let ipcStruct = $derived(
-    structs.structs.find(
-      (s) => s.ipcName === ipcTypeAlias || s.name === "FFXIVIpc" + ipcTypeAlias,
-    ) || null,
-  );
   let valid = $derived(ipcStruct && dw.byteLength >= ipcStruct.size);
 
   let subTypeField = $derived(subTypeKey(ipcStruct?.name || ""));
@@ -82,6 +70,7 @@
             type={ipcStruct.name}
             subType={subTypeField}
             subValue={subTypeValue}
+            {repo}
           />
         {/each}
       {:else}

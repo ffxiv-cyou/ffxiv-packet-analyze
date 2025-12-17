@@ -6,15 +6,16 @@
     bytesToHex,
     epochToTimeString,
     padHex,
-    OpcodeRepo,
+    DataLoader,
   } from "../model/data_utils";
   import PacketFields from "./PacketFields.svelte";
   import { onMount } from "svelte";
-  import opcodeMap from "../data/7.3.diff.json";
 
   let {
+    repo,
     packets,
   }: {
+    repo: DataLoader;
     packets: Packet[];
   } = $props();
 
@@ -22,8 +23,6 @@
   let opcodeFinder: string = $state("");
   let opcodeFilter: string = $state("");
   let selfOnly: boolean = $state(false);
-
-  const repo = new OpcodeRepo("CN", opcodeMap);
 
   function filterToOpcode(filter: string): number | undefined {
     let opcode = parseInt(filter);

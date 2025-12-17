@@ -4,10 +4,12 @@
   import PacketViewer from "./lib/PacketViewer.svelte";
   import { createPcapFile, importPcapFile } from "./model/pcap";
   import { importFFXIVMonData } from "./model/ffxivmon";
+  import { DataLoader } from "./model/data_utils";
 
   overlayToolkit.Start();
 
   let packets: Packet[] = $state([]);
+  const repo = new DataLoader();
 
   function onReceivePacket(packet: Packet) {
     packets.push(packet);
@@ -75,25 +77,39 @@
       reader.readAsArrayBuffer(file);
     }
   }
+
+  repo.loadVersions();
 </script>
 
 <main>
   <h1>FFXIV Packet Analyzer</h1>
-  <button onclick={startCapture}>Start Capture</button>
-  <button onclick={stopCapture}>Stop Capture</button>
-  <button onclick={clearPackets}>Clear Packets</button>
-  <button onclick={exportPackets}>Export Packets</button>
-  <label for="file">Import</label>
-  <input
-    type="file"
-    id="file"
-    accept=".pcap,.xml"
-    onchange={importPackets}
-    name="pcapFile"
-  />
+  <div>
+    <button onclick={startCapture}>Start Capture</button>
+    <button onclick={stopCapture}>Stop Capture</button>
+    <button onclick={clearPackets}>Clear Packets</button>
+    <button onclick={exportPackets}>Export Packets</button>
+    <label for="version-select">Version</label>
+    <select
+      id="version-select"
+      value={repo.version}
+      onchange={(ev) => repo.loadVersion(ev.target.value)}
+    >
+      {#each repo.versionList as version}
+        <option value={version}>{version}</option>
+      {/each}
+    </select>
+    <label for="file">Import</label>
+    <input
+      type="file"
+      id="file"
+      accept=".pcap,.xml"
+      onchange={importPackets}
+      name="pcapFile"
+    />
+  </div>
 
   <div class="card">
-    <PacketViewer {packets} />
+    <PacketViewer {packets} {repo} />
   </div>
 </main>
 

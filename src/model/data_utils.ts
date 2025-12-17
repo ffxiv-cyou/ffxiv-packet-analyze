@@ -1,7 +1,8 @@
 import type { OpcodeList } from "./opcode";
-import opcodes from "../data/opcode.json";
 import extraEnums from "../data/ipc_extra_enum.json";
-import nameDb from "../data/db.json";
+import type { IPCData, IPCStruct } from "./ipc_struct";
+import ipcAlias from "../data/opcode_alias.json";
+import { createSubscriber } from "svelte/reactivity";
 
 export function padHex(num: number, length: number): string {
     return num.toString(16).padStart(length, "0");
@@ -46,7 +47,7 @@ export class OpcodeRepo {
     private opcodeClientName: Map<number, string>;
     private opcodeServName: Map<number, string>;
 
-    constructor(region: string, mappings: OpcodeMapping[] = []) {
+    constructor(region: string, list: OpcodeList[], mappings: OpcodeMapping[] = []) {
         const opcodeMap = new Map<number, number>();
         for (const mapping of mappings) {
             for (let i = 0; i < Math.min(mapping.old.length, mapping.new.length); i++) {
@@ -61,21 +62,25 @@ export class OpcodeRepo {
             }
         }
 
-        const list = opcodes as OpcodeList[];
-        const entry = list.find((e) => e.region === region);
-        if (!entry) throw new Error(`Opcode list for region ${region} not found`);
+        for (const entry of list) {
+            if (entry.region !== region)
+                continue;
 
-        this.opcodeClientName = new Map<number, string>();
-        this.opcodeServName = new Map<number, string>();
+            this.opcodeClientName = new Map<number, string>();
+            this.opcodeServName = new Map<number, string>();
 
-        for (const item of entry.lists.ClientZoneIpcType) {
-            const mappedOpcode = opcodeMap.get(item.opcode) ?? item.opcode;
-            this.opcodeClientName.set(mappedOpcode, item.name);
+            for (const item of entry.lists.ClientZoneIpcType) {
+                const mappedOpcode = opcodeMap.get(item.opcode) ?? item.opcode;
+                this.opcodeClientName.set(mappedOpcode, item.name);
+            }
+            for (const item of entry.lists.ServerZoneIpcType) {
+                const mappedOpcode = opcodeMap.get(item.opcode) ?? item.opcode;
+                this.opcodeServName.set(mappedOpcode, item.name);
+            }
+            return;
         }
-        for (const item of entry.lists.ServerZoneIpcType) {
-            const mappedOpcode = opcodeMap.get(item.opcode) ?? item.opcode;
-            this.opcodeServName.set(mappedOpcode, item.name);
-        }
+
+        throw new Error(`Opcode list for region ${region} not found`);
     }
 
     public getOpcodeName(opcode: number, dir: boolean): string | undefined {
@@ -102,7 +107,6 @@ export class OpcodeRepo {
 }
 
 const extraEnum = extraEnums as { [key: string]: { [key: number]: string | null } };
-const nameDatabase = nameDb as { [key: string]: { [key: number]: string } };
 
 const keyMapping: { [key: string]: string } = {
     "FFXIVIpcActorControl.category": "ActorControlType",
@@ -154,73 +158,200 @@ const subtypeKeys: { [key: string]: string } = {
     "FFXIVIpcClientTrigger": "commandId",
 };
 
+export class NameDb {
+    nameDatabase: { [key: string]: { [key: number]: string } };
+    constructor(nameDb: { [key: string]: { [key: number]: string } }) {
+        this.nameDatabase = nameDb;
+    }
+
+    fieldHasAlias(type: string, field: string, subKey: string = "", subType: number = 0): boolean {
+        if (subKey) {
+            const subKeyType = type + "." + subKey;
+            const subTypeName = this.getAliasValue(subKeyType, subType);
+            if (subTypeName) {
+                const key = type + "." + subTypeName + "." + field;
+                if (keyMapping[key])
+                    return true;
+            }
+        }
+
+        switch (field) {
+            case "actionId":
+                return true;
+        }
+
+        const key = type + "." + field;
+        if (keyMapping[key])
+            return true;
+
+        return false;
+    }
+
+    getFieldAlias(type: string, field: string, value: number, subKey: string = "", subType: number = 0): string | null {
+        if (subKey) {
+            const subKeyType = type + "." + subKey;
+            const subTypeName = this.getAliasValue(subKeyType, subType);
+            if (subTypeName) {
+                const key = type + "." + subTypeName + "." + field;
+                const val = this.getAliasValue(key, value);
+                if (val !== null) {
+                    return val;
+                }
+                console.log(`Alias not found for key: ${key} value: ${value}`);
+            }
+        }
+
+        switch (field) {
+            case "actionId":
+                return this.nameDatabase["Action"][value];
+        }
+
+        const key = type + "." + field;
+        return this.getAliasValue(key, value);
+    }
+
+    getAliasValue(key: string, value: number) {
+        const mappedKey = keyMapping[key] || key;
+
+        switch (mappedKey) {
+            case "ActorControlType":
+                return extraEnum["ActorControlType"][value];
+            case "ClientTriggerType":
+                return extraEnum["ClientTriggerType"][value];
+            case "LogMessage":
+                return this.nameDatabase["LogMessage"][value];
+            case "ItemId":
+                return this.nameDatabase["Item"][value];
+            case "ClassJob":
+                return this.nameDatabase["ClassJob"][value];
+            case "Status":
+                return this.nameDatabase["Status"][value];
+        }
+        return null;
+    }
+}
+
 export function subTypeKey(type: string): string {
     return subtypeKeys[type] || "";
 }
 
-export function fieldHasAlias(type: string, field: string, subKey: string = "", subType: number = 0): boolean {
-    if (subKey) {
-        const subKeyType = type + "." + subKey;
-        const subTypeName = getAliasValue(subKeyType, subType);
-        if (subTypeName) {
-            const key = type + "." + subTypeName + "." + field;
-            if (keyMapping[key])
-                return true;
+interface VersionInfo {
+    version: string;
+    based_on?: string;
+}
+
+const ipcNameAlias: Record<string, string> = ipcAlias as Record<string, string>;
+
+export class DataLoader {
+    versions: Map<string, VersionInfo> = new Map();
+    currentVer: string = "";
+    opcode: OpcodeRepo | null = null;
+    name: NameDb | null = null;
+    ipc: IPCData | null = null;
+
+    #subscribe;
+    private update: () => void = () => { };
+
+    constructor() {
+        this.#subscribe = createSubscriber((update) => {
+            this.update = update;
+        });
+    }
+
+    get versionList(): string[] {
+        this.#subscribe();
+        return Array.from(this.versions.keys()).sort();
+    }
+
+    get version(): string {
+        this.#subscribe();
+        return this.currentVer;
+    }
+
+    async loadVersions(): Promise<void> {
+        const versionFetch = await fetch("/data/version.json");
+        const versions = await versionFetch.json();
+
+        for (const v of versions) {
+            this.versions.set(v.version, v);
         }
+        this.update();
     }
 
-    switch (field) {
-        case "actionId":
-            return true;
-    }
-
-    const key = type + "." + field;
-    if (keyMapping[key])
-        return true;
-
-    return false;
-}
-
-export function getFieldAlias(type: string, field: string, value: number, subKey: string = "", subType: number = 0): string | null {
-    if (subKey) {
-        const subKeyType = type + "." + subKey;
-        const subTypeName = getAliasValue(subKeyType, subType);
-        if (subTypeName) {
-            const key = type + "." + subTypeName + "." + field;
-            const val = getAliasValue(key, value);
-            if (val !== null) {
-                return val;
-            }
-            console.log(`Alias not found for key: ${key} value: ${value}`);
+    async loadVersion(version: string): Promise<void> {
+        // Opcode
+        const vinfo = this.versions.get(version);
+        if (!vinfo) {
+            throw new Error(`Version ${version} not found`);
         }
+
+        let ver = vinfo.version;
+        const diffs: OpcodeMapping[] = [];
+        if (vinfo.based_on) {
+            const opcodeDiff = await fetch(`/data/${ver}/opcode.diff.json`);
+            diffs.push(...await opcodeDiff.json());
+            ver = vinfo.based_on;
+        }
+
+        const opcodeFetch = await fetch(`/data/${ver}/opcode.json`);
+        const opcodeData = await opcodeFetch.json();
+        this.opcode = new OpcodeRepo("CN", opcodeData, diffs);
+
+        // Name Database
+        const nameDbFetch = await fetch(`/data/${ver}/db.json`);
+        const nameDbData = await nameDbFetch.json();
+        this.name = new NameDb(nameDbData);
+
+        // Ipc structs
+        const ipcStructsFetch = await fetch(`/data/${ver}/ipc_structs.json`);
+        const ipcStructsData = await ipcStructsFetch.json();
+        this.ipc = ipcStructsData;
+
+        this.currentVer = version;
+        this.update();
     }
 
-    switch (field) {
-        case "actionId":
-            return nameDatabase["Action"][value];
+    getIpcStruct(name: string): IPCStruct | null {
+        if (!this.ipc || !name)
+            return null;
+
+        const typeName = ipcNameAlias[name] || name;
+        const struct = this.ipc.structs.find((s) => s.name === typeName || s.name === "FFXIVIpc" + typeName);
+        return struct || null;
     }
 
-    const key = type + "." + field;
-    return getAliasValue(key, value);
+    getEnumValue(enumName: string, value: number): string | null {
+        if (!this.ipc)
+            return null;
+        const enumType = this.ipc.enums.find((e) => e.name === enumName);
+        if (!enumType)
+            return null;
+        return enumType.enum[value] || null;
+    }
+
+    getOpcodeName(opcode: number, dir: boolean): string | undefined {
+        this.#subscribe();
+        
+        if (!this.opcode)
+            return undefined;
+        return this.opcode.getOpcodeName(opcode, dir);
+    }
+
+    getNameOpcode(name: string): number | undefined {
+        if (!this.opcode)
+            return undefined;
+        return this.opcode.getNameOpcode(name);
+    }
+
+    fieldHasAlias(type: string, field: string, subKey: string = "", subType: number = 0): boolean {
+        if (!this.name)
+            return false;
+        return this.name.fieldHasAlias(type, field, subKey, subType);
+    }
+
+    getFieldAlias(type: string, field: string, value: number, subKey: string = "", subType: number = 0): string | null {
+        if (!this.name)
+            return null;
+        return this.name.getFieldAlias(type, field, value, subKey, subType);
+    }
 }
-
-function getAliasValue(key: string, value: number) {
-    const mappedKey = keyMapping[key] || key;
-
-    switch (mappedKey) {
-        case "ActorControlType":
-            return extraEnum["ActorControlType"][value];
-        case "ClientTriggerType":
-            return extraEnum["ClientTriggerType"][value];
-        case "LogMessage":
-            return nameDatabase["LogMessage"][value];
-        case "ItemId":
-            return nameDatabase["Item"][value];
-        case "ClassJob":
-            return nameDatabase["ClassJob"][value];
-        case "Status":
-            return nameDatabase["Status"][value];
-    }
-    return null;
-}
-
