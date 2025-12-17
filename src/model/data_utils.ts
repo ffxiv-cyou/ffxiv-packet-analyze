@@ -126,6 +126,7 @@ const keyMapping: { [key: string]: string } = {
     "FFXIVIpcExamine.appearanceCatalogId": "ItemId",
     "FFXIVIpcPlayerSetup.useBaitCatalogId": "ItemId",
     "FFXIVIpcActorControlSelf.FishingMsg.param1": "ItemId",
+    "FFXIVIpcActorControlSelf.FishingBaitMsg.param1": "ItemId",
     "FFXIVIpcSystemLogMessage.messageId": "LogMessage",
     "FFXIVIpcActorControl.LogMsg.param1": "LogMessage",
     "FFXIVIpcActorControlSelf.LogMsg.param1": "LogMessage",
