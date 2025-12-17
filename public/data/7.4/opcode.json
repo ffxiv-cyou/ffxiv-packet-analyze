@@ -1,0 +1,128 @@
+[
+  {
+    "version": "7.40",
+    "region": "CN",
+    "lists": {
+      "ServerZoneIpcType": [
+        {
+          "name": "StatusEffectList",
+          "opcode": 708
+        },
+        {
+          "name": "StatusEffectList2",
+          "opcode": 890
+        },
+        {
+          "name": "StatusEffectList3",
+          "opcode": 216
+        },
+        {
+          "name": "BossStatusEffectList",
+          "opcode": 445
+        },
+        {
+          "name": "StatusEffectListForay3",
+          "opcode": 375
+        },
+        {
+          "name": "Ability1",
+          "opcode": 451
+        },
+        {
+          "name": "Ability8",
+          "opcode": 133
+        },
+        {
+          "name": "Ability16",
+          "opcode": 639
+        },
+        {
+          "name": "Ability24",
+          "opcode": 527
+        },
+        {
+          "name": "Ability32",
+          "opcode": 755
+        },
+        {
+          "name": "ActorCast",
+          "opcode": 425
+        },
+        {
+          "name": "EffectResult",
+          "opcode": 284
+        },
+        {
+          "name": "EffectResultBasic",
+          "opcode": 836
+        },
+        {
+          "name": "ActorControl",
+          "opcode": 316
+        },
+        {
+          "name": "ActorControlSelf",
+          "opcode": 472
+        },
+        {
+          "name": "ActorControlTarget",
+          "opcode": 528
+        },
+        {
+          "name": "UpdateHpMpTp",
+          "opcode": 480
+        },
+        {
+          "name": "PlayerSpawn",
+          "opcode": 263
+        },
+        {
+          "name": "PlayerSetup",
+          "opcode": 144
+        },
+        {
+          "name": "NpcSpawn",
+          "opcode": 764
+        },
+        {
+          "name": "NpcSpawn2",
+          "opcode": 652
+        },
+        {
+          "name": "ActorMove",
+          "opcode": 300
+        },
+        {
+          "name": "ActorSetPos",
+          "opcode": 841
+        },
+        {
+          "name": "ActorGauge",
+          "opcode": 253
+        },
+        {
+          "name": "PresetWaymark",
+          "opcode": 821
+        },
+        {
+          "name": "Waymark",
+          "opcode": 204
+        },
+        {
+          "name": "SystemLogMessage",
+          "opcode": 580
+        }
+      ],
+      "ClientZoneIpcType": [
+        {
+          "name": "ClientTrigger",
+          "opcode": 670
+        }
+      ],
+      "ServerLobbyIpcType": [],
+      "ClientLobbyIpcType": [],
+      "ServerChatIpcType": [],
+      "ClientChatIpcType": []
+    }
+  }
+]

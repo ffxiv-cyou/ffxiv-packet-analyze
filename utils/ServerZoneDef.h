@@ -499,7 +499,9 @@ namespace Sapphire::Network::Packets::Server
     /* 0010 */ uint32_t param4;
     /* 0014 */ uint32_t param5;
     /* 0018 */ uint32_t param6;
-    /* 0018 */ uint32_t padding1;
+    /* 001C */ uint32_t padding1;
+    /* 0020 */ uint32_t padding2;
+    /* 0024 */ uint32_t padding3;
   };
 
   /**
@@ -1017,7 +1019,7 @@ namespace Sapphire::Network::Packets::Server
     uint8_t sightseeing21To80Unlock;
     uint8_t sightseeingHeavenswardUnlock;
     uint8_t unknown9E[26];
-    uint32_t exp[32]; // verified
+    uint32_t exp[33]; // verified
     uint32_t pvpTotalExp;
     uint32_t unknownPvp124;
     uint32_t pvpExp;
@@ -1026,7 +1028,7 @@ namespace Sapphire::Network::Packets::Server
     uint16_t levels[35]; // verified
     uint16_t activeFestivalIds[4];
     uint16_t activeFestivalPhases[4];
-    uint8_t unknown194[176];
+    uint8_t unknown194[194];
     uint16_t beastReputationValue[20];
     uint16_t questManagerUnknown[8];
     uint16_t supplySatisfaction[11];
@@ -1034,30 +1036,30 @@ namespace Sapphire::Network::Packets::Server
     uint8_t companionDefRank; // verified
     uint8_t companionAttRank; // verified
     uint8_t companionHealRank; // verified
-    uint8_t mountGuideMask[41];
+    uint8_t mountGuideMask[43];
     uint8_t ornamentMask[8];
-    uint8_t glassesStylesMask[5];
-    uint8_t framerKitsMask[33];
+    uint8_t glassesStylesMask[7];
+    uint8_t framerKitsMask[38];
     char name[32]; // verified
     uint8_t unknown293[16]; // online ID
     uint8_t unknown2A3[16]; // online ID
     uint8_t unlockBitmask[92];
-    uint8_t aetheryte[31];
+    uint8_t aetheryte[30];
     uint16_t favoriteAetheryteIds[4]; // verified, 990 in 7.3
     uint16_t freeAetheryteId;
     uint16_t psPlusFreeAetheryteId;
-    uint8_t discovery[508]; // verified @1002, length unknown
+    uint8_t discovery[516]; // verified @1002, length unknown
     uint8_t howto[37]; // verified
-    uint8_t minions[71];
+    uint8_t minions[73];
     uint8_t chocoboTaxiMask[12];
-    uint8_t watchedCutscenes[174];
+    uint8_t watchedCutscenes[179];
     uint8_t companionBardingMask[14];
     uint8_t companionEquippedHead; // verified @ 1818 
     uint8_t companionEquippedBody; // verified
     uint8_t companionEquippedLegs; // verified
     uint32_t unknown73d;
     uint8_t unknown741[11];
-    uint8_t caughtFishes[182]; // @1836, fish logs
+    uint8_t caughtFishes[183]; // @1836, fish logs
     uint8_t unlockedFishingSpots[42];
     uint8_t caughtSpearfish[38];
     uint8_t unlockedSpearfishingSpots[9];
@@ -1073,20 +1075,20 @@ namespace Sapphire::Network::Packets::Server
     uint8_t relicCompletion[12];
     uint8_t sightseeingMask[43];
     uint8_t huntingMarkMask[124];
-    uint8_t tripleTriadCards[57];
+    uint8_t tripleTriadCards[59];
     uint8_t unknown895;
     uint8_t unknown7D7[15];
     uint8_t unknown7D8;
     uint8_t aetherCurrentCompeleteSet2[3];
     uint8_t aetherCurrentMask[56];
     uint8_t regionalFolkloreMask[6];
-    uint8_t orchestrionMask[99];
+    uint8_t orchestrionMask[105];
     uint8_t hallOfNoviceCompletion[5]; // verified
     uint8_t animaCompletion[11];
     uint8_t wondrousTailsOrder[16];
     uint8_t wondrousTailsReward[4];
     uint8_t supplySatisfactionRanks[11];
-    uint8_t usedSupplyAllowances[11];
+    uint8_t usedSupplyAllowances[13];
     uint8_t unknownA7A;
     uint8_t unlockedRaids[28]; // verified
     uint8_t unlockedDungeons[18]; // verified
@@ -1100,7 +1102,7 @@ namespace Sapphire::Network::Packets::Server
     uint8_t clearedTrials[12]; // verified
     uint8_t clearedPvp[5];
     uint8_t clearedPvpPadding[2];
-    uint8_t unknown948[15];
+    uint8_t unknown948[23];
   };
 
 

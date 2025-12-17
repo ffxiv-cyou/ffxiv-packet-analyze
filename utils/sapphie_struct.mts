@@ -163,13 +163,15 @@ class SapphieStructParser {
   }
 }
 
+const version = process.argv[2] || '';
+
 const parser = new SapphieStructParser();
 parser.parseFile('utils/Common.h');
 parser.parseFile('utils/ClientZoneDef.h');
 parser.parseFile('utils/ServerZoneDef.h');
 parser.parseFile('utils/ExtraDef.h');
 
-parser.writeToFile('src/data/ipc_structs.json');
+parser.writeToFile(`public/data/${version}/ipc_structs.json`);
 
 const enums = new SapphieStructParser();
 enums.parseFile('utils/CommonActorControl.h');
