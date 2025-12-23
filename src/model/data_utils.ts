@@ -238,6 +238,7 @@ export function subTypeKey(type: string): string {
 interface VersionInfo {
     version: string;
     based_on?: string;
+    opcode_diff?: boolean;
 }
 
 const ipcNameAlias: Record<string, string> = ipcAlias as Record<string, string>;
@@ -286,14 +287,18 @@ export class DataLoader {
         }
 
         let ver = vinfo.version;
+        let opcodeVer = ver;
         const diffs: OpcodeMapping[] = [];
         if (vinfo.based_on) {
-            const opcodeDiff = await fetch(`/data/${ver}/opcode.diff.json`);
-            diffs.push(...await opcodeDiff.json());
+            if (vinfo.opcode_diff) {
+                const opcodeDiff = await fetch(`/data/${ver}/opcode.diff.json`);
+                diffs.push(...await opcodeDiff.json());
+                opcodeVer = vinfo.based_on;
+            } 
             ver = vinfo.based_on;
         }
 
-        const opcodeFetch = await fetch(`/data/${ver}/opcode.json`);
+        const opcodeFetch = await fetch(`/data/${opcodeVer}/opcode.json`);
         const opcodeData = await opcodeFetch.json();
         this.opcode = new OpcodeRepo("CN", opcodeData, diffs);
 

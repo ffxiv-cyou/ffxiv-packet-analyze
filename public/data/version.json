@@ -4,9 +4,14 @@
     },
     {
         "version": "7.38",
-        "based_on": "7.3"
+        "based_on": "7.3",
+        "opcode_diff": true
     },
     {
         "version": "7.4"
+    },
+    {
+        "version": "7.4h",
+        "based_on": "7.4"
     }
 ]
