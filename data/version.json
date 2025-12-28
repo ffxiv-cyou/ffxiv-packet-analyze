@@ -1,0 +1,21 @@
+[
+    {
+        "version": "7.3"
+    },
+    {
+        "version": "7.38",
+        "based_on": "7.3",
+        "opcode_diff": true
+    },
+    {
+        "version": "7.4"
+    },
+    {
+        "version": "7.4a",
+        "based_on": "7.4"
+    },
+    {
+        "version": "7.4b",
+        "based_on": "7.4"
+    }
+]
