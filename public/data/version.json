@@ -11,7 +11,11 @@
         "version": "7.4"
     },
     {
-        "version": "7.4h",
+        "version": "7.4a",
+        "based_on": "7.4"
+    },
+    {
+        "version": "7.4b",
         "based_on": "7.4"
     }
 ]
