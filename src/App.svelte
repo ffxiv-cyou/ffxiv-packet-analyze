@@ -1,6 +1,6 @@
 <script lang="ts">
-  import overlayToolkit from "overlay-toolkit-lib";
-  import type { Packet } from "overlay-toolkit-lib";
+  import overlayToolkit from "overlay-toolkit";
+  import type { Packet } from "overlay-toolkit";
   import PacketViewer from "./lib/PacketViewer.svelte";
   import { createPcapFile, importPcapFile } from "./model/pcap";
   import { importFFXIVMonData } from "./model/ffxivmon";

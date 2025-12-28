@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Packet } from "overlay-toolkit-lib";
+  import type { Packet } from "overlay-toolkit";
   import { DataLoader, padHex, subTypeKey } from "../model/data_utils";
 
   import FieldViewer from "./FieldViewer.svelte";

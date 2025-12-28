@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Packet } from "overlay-toolkit-lib";
+  import type { Packet } from "overlay-toolkit";
   import SvelteVirtualList from "@humanspeak/svelte-virtual-list";
   import ByteInspector from "./ByteInspector.svelte";
   import {

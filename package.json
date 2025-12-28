@@ -23,6 +23,6 @@
   },
   "dependencies": {
     "@humanspeak/svelte-virtual-list": "^0.3.5",
-    "overlay-toolkit-lib": "file:../overlay-toolkit-library"
+    "overlay-toolkit": "^0.11.0"
   }
 }
