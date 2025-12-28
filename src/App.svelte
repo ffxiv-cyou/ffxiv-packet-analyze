@@ -1,12 +1,16 @@
 <script lang="ts">
-  import overlayToolkit from "overlay-toolkit";
+  import { OverlayToolkit } from "overlay-toolkit";
   import type { Packet } from "overlay-toolkit";
   import PacketViewer from "./lib/PacketViewer.svelte";
   import { createPcapFile, importPcapFile } from "./model/pcap";
   import { importFFXIVMonData } from "./model/ffxivmon";
   import { DataLoader } from "./model/data_utils";
 
+  const params = new URLSearchParams(location.search);
+  const overlayToolkit = new OverlayToolkit();
+  
   overlayToolkit.Start();
+  overlayToolkit.Connect(params.get("OVERLAY_WS") || "ws://localhost:10501/ws");
 
   let packets: Packet[] = $state([]);
   const repo = new DataLoader();
