@@ -73,10 +73,10 @@
   
   struct FFXIVIpcGuessTargetAction : FFXIVIpcBasePacket < GuessTargetAction >
   {
-    uint16_t unknown00;
-    uint16_t unknown02;
     uint32_t actionId;
+    uint16_t unknown04;
     uint16_t sequence;
+    uint16_t unknown08;
     uint16_t unknown0a;
     uint16_t unknown0c;
     uint16_t unknown0e;
