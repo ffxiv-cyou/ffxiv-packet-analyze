@@ -633,6 +633,8 @@ namespace Sapphire::Network::Packets::Server
   */
   struct FFXIVIpcPlayerSpawn : FFXIVIpcBasePacket< PlayerSpawn >
   {
+    uint64_t accountId;
+    uint64_t contentId;
     uint16_t title;
     uint16_t u1b;
     uint16_t currentWorldId;
@@ -679,6 +681,7 @@ namespace Sapphire::Network::Packets::Server
     uint8_t u24;
     uint8_t u25;
     uint8_t u26; 
+    uint16_t tetherId;
     uint8_t spawnIndex;
     uint8_t state;
     uint8_t persistentEmote;
@@ -697,11 +700,12 @@ namespace Sapphire::Network::Packets::Server
     uint8_t mountFeet;
     uint8_t mountColor;
     uint8_t scale;
-    uint8_t elementData[6];
+    uint8_t elementData[8];
     Common::StatusEffect effect[30];
     Common::FFXIVARR_POSITION3 pos;
     uint32_t models[10];
     uint8_t unknown6_58[10];
+    uint16_t glasses_id[2];
     char name[32];
     uint8_t look[26];
     char fcTag[6];

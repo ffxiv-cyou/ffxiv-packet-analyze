@@ -1,7 +1,7 @@
 import type { IPCData, IPCStruct, IPCStructField, IPCTypeAlias } from '../src/model/ipc_struct';
 import * as fs from 'fs';
 
-const jsonData = fs.readFileSync("src/data/ipc_structs.json", "utf-8");
+const jsonData = fs.readFileSync("public/data/ipc_structs.json", "utf-8");
 const ipcData: IPCData = JSON.parse(jsonData);
 const structs = ipcData.structs;
 

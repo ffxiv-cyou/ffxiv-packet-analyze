@@ -1846,6 +1846,8 @@ export class FFXIVIpcActorControlSelf extends IpcPacket {
   param5: number;
   param6: number;
   padding1: number;
+  padding2: number;
+  padding3: number;
 
   constructor(dw: DataView, offset: number = 0) {
     super(dw, offset);
@@ -1859,6 +1861,8 @@ export class FFXIVIpcActorControlSelf extends IpcPacket {
     this.param5 = dw.getUint32(offset + 20, true);
     this.param6 = dw.getUint32(offset + 24, true);
     this.padding1 = dw.getUint32(offset + 28, true);
+    this.padding2 = dw.getUint32(offset + 32, true);
+    this.padding3 = dw.getUint32(offset + 36, true);
   }
 }
 export class FFXIVIpcActorControlTarget extends IpcPacket {
@@ -2786,296 +2790,296 @@ export class FFXIVIpcPlayerSetup extends IpcPacket {
     for (let i = 0; i < 26; i++) {
       this.unknown9E[i] = dw.getUint8(offset + 158 + i * 1);
     }
-    this.exp = new Array(32);
-    for (let i = 0; i < 32; i++) {
+    this.exp = new Array(33);
+    for (let i = 0; i < 33; i++) {
       this.exp[i] = dw.getUint32(offset + 184 + i * 4, true);
     }
-    this.pvpTotalExp = dw.getUint32(offset + 312, true);
-    this.unknownPvp124 = dw.getUint32(offset + 316, true);
-    this.pvpExp = dw.getUint32(offset + 320, true);
+    this.pvpTotalExp = dw.getUint32(offset + 316, true);
+    this.unknownPvp124 = dw.getUint32(offset + 320, true);
+    this.pvpExp = dw.getUint32(offset + 324, true);
     this.pvpFrontlineOverallRanks = new Array(3);
     for (let i = 0; i < 3; i++) {
-      this.pvpFrontlineOverallRanks[i] = dw.getUint32(offset + 324 + i * 4, true);
+      this.pvpFrontlineOverallRanks[i] = dw.getUint32(offset + 328 + i * 4, true);
     }
     this.unknown138 = new Array(4);
     for (let i = 0; i < 4; i++) {
-      this.unknown138[i] = dw.getUint32(offset + 336 + i * 4, true);
+      this.unknown138[i] = dw.getUint32(offset + 340 + i * 4, true);
     }
     this.levels = new Array(35);
     for (let i = 0; i < 35; i++) {
-      this.levels[i] = dw.getUint16(offset + 352 + i * 2, true);
+      this.levels[i] = dw.getUint16(offset + 356 + i * 2, true);
     }
     this.activeFestivalIds = new Array(4);
     for (let i = 0; i < 4; i++) {
-      this.activeFestivalIds[i] = dw.getUint16(offset + 422 + i * 2, true);
+      this.activeFestivalIds[i] = dw.getUint16(offset + 426 + i * 2, true);
     }
     this.activeFestivalPhases = new Array(4);
     for (let i = 0; i < 4; i++) {
-      this.activeFestivalPhases[i] = dw.getUint16(offset + 430 + i * 2, true);
+      this.activeFestivalPhases[i] = dw.getUint16(offset + 434 + i * 2, true);
     }
-    this.unknown194 = new Array(176);
-    for (let i = 0; i < 176; i++) {
-      this.unknown194[i] = dw.getUint8(offset + 438 + i * 1);
+    this.unknown194 = new Array(194);
+    for (let i = 0; i < 194; i++) {
+      this.unknown194[i] = dw.getUint8(offset + 442 + i * 1);
     }
     this.beastReputationValue = new Array(20);
     for (let i = 0; i < 20; i++) {
-      this.beastReputationValue[i] = dw.getUint16(offset + 614 + i * 2, true);
+      this.beastReputationValue[i] = dw.getUint16(offset + 636 + i * 2, true);
     }
     this.questManagerUnknown = new Array(8);
     for (let i = 0; i < 8; i++) {
-      this.questManagerUnknown[i] = dw.getUint16(offset + 654 + i * 2, true);
+      this.questManagerUnknown[i] = dw.getUint16(offset + 676 + i * 2, true);
     }
     this.supplySatisfaction = new Array(11);
     for (let i = 0; i < 11; i++) {
-      this.supplySatisfaction[i] = dw.getUint16(offset + 670 + i * 2, true);
+      this.supplySatisfaction[i] = dw.getUint16(offset + 692 + i * 2, true);
     }
     this.companionName = new Array(21);
     for (let i = 0; i < 21; i++) {
-      this.companionName[i] = dw.getInt8(offset + 692 + i * 1);
+      this.companionName[i] = dw.getInt8(offset + 714 + i * 1);
     }
-    this.companionDefRank = dw.getUint8(offset + 713);
-    this.companionAttRank = dw.getUint8(offset + 714);
-    this.companionHealRank = dw.getUint8(offset + 715);
-    this.mountGuideMask = new Array(41);
-    for (let i = 0; i < 41; i++) {
-      this.mountGuideMask[i] = dw.getUint8(offset + 716 + i * 1);
+    this.companionDefRank = dw.getUint8(offset + 735);
+    this.companionAttRank = dw.getUint8(offset + 736);
+    this.companionHealRank = dw.getUint8(offset + 737);
+    this.mountGuideMask = new Array(43);
+    for (let i = 0; i < 43; i++) {
+      this.mountGuideMask[i] = dw.getUint8(offset + 738 + i * 1);
     }
     this.ornamentMask = new Array(8);
     for (let i = 0; i < 8; i++) {
-      this.ornamentMask[i] = dw.getUint8(offset + 757 + i * 1);
+      this.ornamentMask[i] = dw.getUint8(offset + 781 + i * 1);
     }
-    this.glassesStylesMask = new Array(5);
-    for (let i = 0; i < 5; i++) {
-      this.glassesStylesMask[i] = dw.getUint8(offset + 765 + i * 1);
+    this.glassesStylesMask = new Array(7);
+    for (let i = 0; i < 7; i++) {
+      this.glassesStylesMask[i] = dw.getUint8(offset + 789 + i * 1);
     }
-    this.framerKitsMask = new Array(33);
-    for (let i = 0; i < 33; i++) {
-      this.framerKitsMask[i] = dw.getUint8(offset + 770 + i * 1);
+    this.framerKitsMask = new Array(38);
+    for (let i = 0; i < 38; i++) {
+      this.framerKitsMask[i] = dw.getUint8(offset + 796 + i * 1);
     }
     this.name = new Array(32);
     for (let i = 0; i < 32; i++) {
-      this.name[i] = dw.getInt8(offset + 803 + i * 1);
+      this.name[i] = dw.getInt8(offset + 834 + i * 1);
     }
     this.unknown293 = new Array(16);
     for (let i = 0; i < 16; i++) {
-      this.unknown293[i] = dw.getUint8(offset + 835 + i * 1);
+      this.unknown293[i] = dw.getUint8(offset + 866 + i * 1);
     }
     this.unknown2A3 = new Array(16);
     for (let i = 0; i < 16; i++) {
-      this.unknown2A3[i] = dw.getUint8(offset + 851 + i * 1);
+      this.unknown2A3[i] = dw.getUint8(offset + 882 + i * 1);
     }
     this.unlockBitmask = new Array(92);
     for (let i = 0; i < 92; i++) {
-      this.unlockBitmask[i] = dw.getUint8(offset + 867 + i * 1);
+      this.unlockBitmask[i] = dw.getUint8(offset + 898 + i * 1);
     }
-    this.aetheryte = new Array(31);
-    for (let i = 0; i < 31; i++) {
-      this.aetheryte[i] = dw.getUint8(offset + 959 + i * 1);
+    this.aetheryte = new Array(30);
+    for (let i = 0; i < 30; i++) {
+      this.aetheryte[i] = dw.getUint8(offset + 990 + i * 1);
     }
     this.favoriteAetheryteIds = new Array(4);
     for (let i = 0; i < 4; i++) {
-      this.favoriteAetheryteIds[i] = dw.getUint16(offset + 990 + i * 2, true);
+      this.favoriteAetheryteIds[i] = dw.getUint16(offset + 1020 + i * 2, true);
     }
-    this.freeAetheryteId = dw.getUint16(offset + 998, true);
-    this.psPlusFreeAetheryteId = dw.getUint16(offset + 1000, true);
-    this.discovery = new Array(508);
-    for (let i = 0; i < 508; i++) {
-      this.discovery[i] = dw.getUint8(offset + 1002 + i * 1);
+    this.freeAetheryteId = dw.getUint16(offset + 1028, true);
+    this.psPlusFreeAetheryteId = dw.getUint16(offset + 1030, true);
+    this.discovery = new Array(516);
+    for (let i = 0; i < 516; i++) {
+      this.discovery[i] = dw.getUint8(offset + 1032 + i * 1);
     }
     this.howto = new Array(37);
     for (let i = 0; i < 37; i++) {
-      this.howto[i] = dw.getUint8(offset + 1510 + i * 1);
+      this.howto[i] = dw.getUint8(offset + 1548 + i * 1);
     }
-    this.minions = new Array(71);
-    for (let i = 0; i < 71; i++) {
-      this.minions[i] = dw.getUint8(offset + 1547 + i * 1);
+    this.minions = new Array(73);
+    for (let i = 0; i < 73; i++) {
+      this.minions[i] = dw.getUint8(offset + 1585 + i * 1);
     }
     this.chocoboTaxiMask = new Array(12);
     for (let i = 0; i < 12; i++) {
-      this.chocoboTaxiMask[i] = dw.getUint8(offset + 1618 + i * 1);
+      this.chocoboTaxiMask[i] = dw.getUint8(offset + 1658 + i * 1);
     }
-    this.watchedCutscenes = new Array(174);
-    for (let i = 0; i < 174; i++) {
-      this.watchedCutscenes[i] = dw.getUint8(offset + 1630 + i * 1);
+    this.watchedCutscenes = new Array(179);
+    for (let i = 0; i < 179; i++) {
+      this.watchedCutscenes[i] = dw.getUint8(offset + 1670 + i * 1);
     }
     this.companionBardingMask = new Array(14);
     for (let i = 0; i < 14; i++) {
-      this.companionBardingMask[i] = dw.getUint8(offset + 1804 + i * 1);
+      this.companionBardingMask[i] = dw.getUint8(offset + 1849 + i * 1);
     }
-    this.companionEquippedHead = dw.getUint8(offset + 1818);
-    this.companionEquippedBody = dw.getUint8(offset + 1819);
-    this.companionEquippedLegs = dw.getUint8(offset + 1820);
-    this.unknown73d = dw.getUint32(offset + 1821, true);
+    this.companionEquippedHead = dw.getUint8(offset + 1863);
+    this.companionEquippedBody = dw.getUint8(offset + 1864);
+    this.companionEquippedLegs = dw.getUint8(offset + 1865);
+    this.unknown73d = dw.getUint32(offset + 1866, true);
     this.unknown741 = new Array(11);
     for (let i = 0; i < 11; i++) {
-      this.unknown741[i] = dw.getUint8(offset + 1825 + i * 1);
+      this.unknown741[i] = dw.getUint8(offset + 1870 + i * 1);
     }
-    this.caughtFishes = new Array(182);
-    for (let i = 0; i < 182; i++) {
-      this.caughtFishes[i] = dw.getUint8(offset + 1836 + i * 1);
+    this.caughtFishes = new Array(183);
+    for (let i = 0; i < 183; i++) {
+      this.caughtFishes[i] = dw.getUint8(offset + 1881 + i * 1);
     }
     this.unlockedFishingSpots = new Array(42);
     for (let i = 0; i < 42; i++) {
-      this.unlockedFishingSpots[i] = dw.getUint8(offset + 2018 + i * 1);
+      this.unlockedFishingSpots[i] = dw.getUint8(offset + 2064 + i * 1);
     }
     this.caughtSpearfish = new Array(38);
     for (let i = 0; i < 38; i++) {
-      this.caughtSpearfish[i] = dw.getUint8(offset + 2060 + i * 1);
+      this.caughtSpearfish[i] = dw.getUint8(offset + 2106 + i * 1);
     }
     this.unlockedSpearfishingSpots = new Array(9);
     for (let i = 0; i < 9; i++) {
-      this.unlockedSpearfishingSpots[i] = dw.getUint8(offset + 2098 + i * 1);
+      this.unlockedSpearfishingSpots[i] = dw.getUint8(offset + 2144 + i * 1);
     }
     this.rankGrandCompany = new Array(3);
     for (let i = 0; i < 3; i++) {
-      this.rankGrandCompany[i] = dw.getUint8(offset + 2107 + i * 1);
+      this.rankGrandCompany[i] = dw.getUint8(offset + 2153 + i * 1);
     }
     this.beastReputationRank = new Array(20);
     for (let i = 0; i < 20; i++) {
-      this.beastReputationRank[i] = dw.getUint8(offset + 2110 + i * 1);
+      this.beastReputationRank[i] = dw.getUint8(offset + 2156 + i * 1);
     }
     this.contentRouletteCompletion = new Array(10);
     for (let i = 0; i < 10; i++) {
-      this.contentRouletteCompletion[i] = dw.getUint8(offset + 2130 + i * 1);
+      this.contentRouletteCompletion[i] = dw.getUint8(offset + 2176 + i * 1);
     }
     this.unknown6f7 = new Array(2);
     for (let i = 0; i < 2; i++) {
-      this.unknown6f7[i] = dw.getUint8(offset + 2140 + i * 1);
+      this.unknown6f7[i] = dw.getUint8(offset + 2186 + i * 1);
     }
     this.pose = new Array(7);
     for (let i = 0; i < 7; i++) {
-      this.pose[i] = dw.getUint8(offset + 2142 + i * 1);
+      this.pose[i] = dw.getUint8(offset + 2188 + i * 1);
     }
     this.playerStateFlags = new Array(3);
     for (let i = 0; i < 3; i++) {
-      this.playerStateFlags[i] = dw.getUint8(offset + 2149 + i * 1);
+      this.playerStateFlags[i] = dw.getUint8(offset + 2195 + i * 1);
     }
     this.contentsNoteCompletionFlags = new Array(13);
     for (let i = 0; i < 13; i++) {
-      this.contentsNoteCompletionFlags[i] = dw.getUint8(offset + 2152 + i * 1);
+      this.contentsNoteCompletionFlags[i] = dw.getUint8(offset + 2198 + i * 1);
     }
     this.secretRecipeBookMask = new Array(14);
     for (let i = 0; i < 14; i++) {
-      this.secretRecipeBookMask[i] = dw.getUint8(offset + 2165 + i * 1);
+      this.secretRecipeBookMask[i] = dw.getUint8(offset + 2211 + i * 1);
     }
     this.unknownMask879 = new Array(28);
     for (let i = 0; i < 28; i++) {
-      this.unknownMask879[i] = dw.getUint8(offset + 2179 + i * 1);
+      this.unknownMask879[i] = dw.getUint8(offset + 2225 + i * 1);
     }
     this.relicCompletion = new Array(12);
     for (let i = 0; i < 12; i++) {
-      this.relicCompletion[i] = dw.getUint8(offset + 2207 + i * 1);
+      this.relicCompletion[i] = dw.getUint8(offset + 2253 + i * 1);
     }
     this.sightseeingMask = new Array(43);
     for (let i = 0; i < 43; i++) {
-      this.sightseeingMask[i] = dw.getUint8(offset + 2219 + i * 1);
+      this.sightseeingMask[i] = dw.getUint8(offset + 2265 + i * 1);
     }
     this.huntingMarkMask = new Array(124);
     for (let i = 0; i < 124; i++) {
-      this.huntingMarkMask[i] = dw.getUint8(offset + 2262 + i * 1);
+      this.huntingMarkMask[i] = dw.getUint8(offset + 2308 + i * 1);
     }
-    this.tripleTriadCards = new Array(57);
-    for (let i = 0; i < 57; i++) {
-      this.tripleTriadCards[i] = dw.getUint8(offset + 2386 + i * 1);
+    this.tripleTriadCards = new Array(59);
+    for (let i = 0; i < 59; i++) {
+      this.tripleTriadCards[i] = dw.getUint8(offset + 2432 + i * 1);
     }
-    this.unknown895 = dw.getUint8(offset + 2443);
+    this.unknown895 = dw.getUint8(offset + 2491);
     this.unknown7D7 = new Array(15);
     for (let i = 0; i < 15; i++) {
-      this.unknown7D7[i] = dw.getUint8(offset + 2444 + i * 1);
+      this.unknown7D7[i] = dw.getUint8(offset + 2492 + i * 1);
     }
-    this.unknown7D8 = dw.getUint8(offset + 2459);
+    this.unknown7D8 = dw.getUint8(offset + 2507);
     this.aetherCurrentCompeleteSet2 = new Array(3);
     for (let i = 0; i < 3; i++) {
-      this.aetherCurrentCompeleteSet2[i] = dw.getUint8(offset + 2460 + i * 1);
+      this.aetherCurrentCompeleteSet2[i] = dw.getUint8(offset + 2508 + i * 1);
     }
     this.aetherCurrentMask = new Array(56);
     for (let i = 0; i < 56; i++) {
-      this.aetherCurrentMask[i] = dw.getUint8(offset + 2463 + i * 1);
+      this.aetherCurrentMask[i] = dw.getUint8(offset + 2511 + i * 1);
     }
     this.regionalFolkloreMask = new Array(6);
     for (let i = 0; i < 6; i++) {
-      this.regionalFolkloreMask[i] = dw.getUint8(offset + 2519 + i * 1);
+      this.regionalFolkloreMask[i] = dw.getUint8(offset + 2567 + i * 1);
     }
-    this.orchestrionMask = new Array(99);
-    for (let i = 0; i < 99; i++) {
-      this.orchestrionMask[i] = dw.getUint8(offset + 2525 + i * 1);
+    this.orchestrionMask = new Array(105);
+    for (let i = 0; i < 105; i++) {
+      this.orchestrionMask[i] = dw.getUint8(offset + 2573 + i * 1);
     }
     this.hallOfNoviceCompletion = new Array(5);
     for (let i = 0; i < 5; i++) {
-      this.hallOfNoviceCompletion[i] = dw.getUint8(offset + 2624 + i * 1);
+      this.hallOfNoviceCompletion[i] = dw.getUint8(offset + 2678 + i * 1);
     }
     this.animaCompletion = new Array(11);
     for (let i = 0; i < 11; i++) {
-      this.animaCompletion[i] = dw.getUint8(offset + 2629 + i * 1);
+      this.animaCompletion[i] = dw.getUint8(offset + 2683 + i * 1);
     }
     this.wondrousTailsOrder = new Array(16);
     for (let i = 0; i < 16; i++) {
-      this.wondrousTailsOrder[i] = dw.getUint8(offset + 2640 + i * 1);
+      this.wondrousTailsOrder[i] = dw.getUint8(offset + 2694 + i * 1);
     }
     this.wondrousTailsReward = new Array(4);
     for (let i = 0; i < 4; i++) {
-      this.wondrousTailsReward[i] = dw.getUint8(offset + 2656 + i * 1);
+      this.wondrousTailsReward[i] = dw.getUint8(offset + 2710 + i * 1);
     }
     this.supplySatisfactionRanks = new Array(11);
     for (let i = 0; i < 11; i++) {
-      this.supplySatisfactionRanks[i] = dw.getUint8(offset + 2660 + i * 1);
+      this.supplySatisfactionRanks[i] = dw.getUint8(offset + 2714 + i * 1);
     }
-    this.usedSupplyAllowances = new Array(11);
-    for (let i = 0; i < 11; i++) {
-      this.usedSupplyAllowances[i] = dw.getUint8(offset + 2671 + i * 1);
+    this.usedSupplyAllowances = new Array(13);
+    for (let i = 0; i < 13; i++) {
+      this.usedSupplyAllowances[i] = dw.getUint8(offset + 2725 + i * 1);
     }
-    this.unknownA7A = dw.getUint8(offset + 2682);
+    this.unknownA7A = dw.getUint8(offset + 2738);
     this.unlockedRaids = new Array(28);
     for (let i = 0; i < 28; i++) {
-      this.unlockedRaids[i] = dw.getUint8(offset + 2683 + i * 1);
+      this.unlockedRaids[i] = dw.getUint8(offset + 2739 + i * 1);
     }
     this.unlockedDungeons = new Array(18);
     for (let i = 0; i < 18; i++) {
-      this.unlockedDungeons[i] = dw.getUint8(offset + 2711 + i * 1);
+      this.unlockedDungeons[i] = dw.getUint8(offset + 2767 + i * 1);
     }
     this.unlockedGuildhests = new Array(10);
     for (let i = 0; i < 10; i++) {
-      this.unlockedGuildhests[i] = dw.getUint8(offset + 2729 + i * 1);
+      this.unlockedGuildhests[i] = dw.getUint8(offset + 2785 + i * 1);
     }
     this.unlockedTrials = new Array(12);
     for (let i = 0; i < 12; i++) {
-      this.unlockedTrials[i] = dw.getUint8(offset + 2739 + i * 1);
+      this.unlockedTrials[i] = dw.getUint8(offset + 2795 + i * 1);
     }
     this.unlockedPvp = new Array(5);
     for (let i = 0; i < 5; i++) {
-      this.unlockedPvp[i] = dw.getUint8(offset + 2751 + i * 1);
+      this.unlockedPvp[i] = dw.getUint8(offset + 2807 + i * 1);
     }
     this.pvpPadding = new Array(2);
     for (let i = 0; i < 2; i++) {
-      this.pvpPadding[i] = dw.getUint8(offset + 2756 + i * 1);
+      this.pvpPadding[i] = dw.getUint8(offset + 2812 + i * 1);
     }
     this.clearedRaids = new Array(28);
     for (let i = 0; i < 28; i++) {
-      this.clearedRaids[i] = dw.getUint8(offset + 2758 + i * 1);
+      this.clearedRaids[i] = dw.getUint8(offset + 2814 + i * 1);
     }
     this.clearedDungeons = new Array(18);
     for (let i = 0; i < 18; i++) {
-      this.clearedDungeons[i] = dw.getUint8(offset + 2786 + i * 1);
+      this.clearedDungeons[i] = dw.getUint8(offset + 2842 + i * 1);
     }
     this.clearedGuildhests = new Array(10);
     for (let i = 0; i < 10; i++) {
-      this.clearedGuildhests[i] = dw.getUint8(offset + 2804 + i * 1);
+      this.clearedGuildhests[i] = dw.getUint8(offset + 2860 + i * 1);
     }
     this.clearedTrials = new Array(12);
     for (let i = 0; i < 12; i++) {
-      this.clearedTrials[i] = dw.getUint8(offset + 2814 + i * 1);
+      this.clearedTrials[i] = dw.getUint8(offset + 2870 + i * 1);
     }
     this.clearedPvp = new Array(5);
     for (let i = 0; i < 5; i++) {
-      this.clearedPvp[i] = dw.getUint8(offset + 2826 + i * 1);
+      this.clearedPvp[i] = dw.getUint8(offset + 2882 + i * 1);
     }
     this.clearedPvpPadding = new Array(2);
     for (let i = 0; i < 2; i++) {
-      this.clearedPvpPadding[i] = dw.getUint8(offset + 2831 + i * 1);
+      this.clearedPvpPadding[i] = dw.getUint8(offset + 2887 + i * 1);
     }
-    this.unknown948 = new Array(15);
-    for (let i = 0; i < 15; i++) {
-      this.unknown948[i] = dw.getUint8(offset + 2833 + i * 1);
+    this.unknown948 = new Array(23);
+    for (let i = 0; i < 23; i++) {
+      this.unknown948[i] = dw.getUint8(offset + 2889 + i * 1);
     }
   }
 }
@@ -5272,10 +5276,10 @@ export class FFXIVIpcEventPlay4 extends IpcPacket {
   }
 }
 export class FFXIVIpcGuessTargetAction extends IpcPacket {
-  unknown00: number;
-  unknown02: number;
   actionId: number;
+  unknown04: number;
   sequence: number;
+  unknown08: number;
   unknown0a: number;
   unknown0c: number;
   unknown0e: number;
@@ -5287,10 +5291,10 @@ export class FFXIVIpcGuessTargetAction extends IpcPacket {
   constructor(dw: DataView, offset: number = 0) {
     super(dw, offset);
     offset += IpcPacket.PacketSize();
-    this.unknown00 = dw.getUint16(offset + 0, true);
-    this.unknown02 = dw.getUint16(offset + 2, true);
-    this.actionId = dw.getUint32(offset + 4, true);
-    this.sequence = dw.getUint16(offset + 8, true);
+    this.actionId = dw.getUint32(offset + 0, true);
+    this.unknown04 = dw.getUint16(offset + 4, true);
+    this.sequence = dw.getUint16(offset + 6, true);
+    this.unknown08 = dw.getUint16(offset + 8, true);
     this.unknown0a = dw.getUint16(offset + 10, true);
     this.unknown0c = dw.getUint16(offset + 12, true);
     this.unknown0e = dw.getUint16(offset + 14, true);
