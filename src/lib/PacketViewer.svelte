@@ -91,6 +91,9 @@
   }
 
   let listRef: SvelteVirtualList<Packet> | null = null;
+  // The list container is the only element in the list that is never
+  // unmounted by the virtual list, so it is the safe owner of keyboard focus.
+  let listContainer: HTMLDivElement | null = $state(null);
   function scrollToPacket(index: number) {
     listRef?.scroll({
       index,
@@ -115,11 +118,13 @@
         return;
     }
 
-    const target = event.target as HTMLElement;
-
     event.preventDefault();
     scrollToPacket(packetIdx);
-    target?.parentElement?.focus();
+
+    // Do NOT focus the row element (nor its parent wrapper): the virtual list
+    // recycles/unmounts rows as you scroll past the render window+buffer, which
+    // would drop focus onto <body> and let the arrow keys scroll the page.
+    listContainer?.focus({ preventScroll: true });
   }
 
   function handleSearchKey(event: KeyboardEvent) {
@@ -256,6 +261,8 @@
       class="packet-list"
       role="listbox"
       tabindex="-1"
+      bind:this={listContainer}
+      aria-activedescendant={packetIdx >= 0 ? "packet-" + packetIdx : undefined}
       onkeydown={handleKeyDown}
     >
       <SvelteVirtualList items={filteredPackets} bind:this={listRef}>
@@ -416,6 +423,11 @@
     background-color: #f9f9f9;
     font-size: 12px;
     flex: 1;
+
+    /* focus is programmatic here; a ring around the whole list is just noise */
+    &:focus {
+      outline: none;
+    }
 
     & .packet-item {
       padding: 5px 10px;
