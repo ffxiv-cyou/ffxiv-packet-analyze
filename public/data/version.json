@@ -27,5 +27,9 @@
     {
         "version": "7.5a",
         "based_on": "7.5"
+    },
+    {
+        "version": "7.56a",
+        "based_on": "7.5"
     }
 ]

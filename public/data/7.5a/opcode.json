@@ -703,6 +703,10 @@
           "opcode": 658
         },
         {
+          "name": "GuessTargetAction",
+          "opcode": 306
+        },
+        {
           "name": "InventoryModifyHandler",
           "opcode": 655
         },
