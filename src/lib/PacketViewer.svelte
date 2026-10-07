@@ -9,6 +9,8 @@
     DataLoader,
   } from "../model/data_utils";
   import PacketFields from "./PacketFields.svelte";
+  import FilterBar from "./FilterBar.svelte";
+  import { compileFilter, type CompiledFilter, type FilterSymbols } from "../model/filter";
   import { onMount } from "svelte";
 
   let {
@@ -21,8 +23,24 @@
 
   let filteredPackets: Packet[] = $state.raw([]);
   let opcodeFinder: string = $state("");
-  let opcodeFilter: string = $state("");
+  let filterText: string = $state("");
   let selfOnly: boolean = $state(false);
+
+  // Recompiled whenever the expression or the loaded version changes.
+  let symbols: FilterSymbols | null = $derived.by(() => {
+    void repo.version;
+    if (!repo.ipc || !repo.opcode || !repo.name) return null;
+    return repo.getFilterSymbols();
+  });
+
+  let compiled: CompiledFilter | null = $derived.by(() =>
+    symbols ? compileFilter(filterText, symbols) : null,
+  );
+
+  function applyFieldFilter(expr: string) {
+    const current = filterText.trim();
+    filterText = current && compiled?.valid ? `${current} && ${expr}` : expr;
+  }
 
   function filterToOpcode(filter: string): number | undefined {
     let opcode = parseInt(filter);
@@ -165,52 +183,65 @@
     event.preventDefault();
   }
 
-  let lastFilter: string = "";
+  let lastFilterText: string = "";
   let lastSelfOnly: boolean = false;
+  let lastCompiled: CompiledFilter | null = null;
+  let lastPacketsLength: number = 0;
+  let lastOpcodes: Set<number> | null = null;
+
   $effect(() => {
-    opcodeFilter;
+    filterText;
     selfOnly;
     sync();
   });
 
-  let lastPacketsLength: number = 0;
-  
+  function isSelfPacket(packet: Packet): boolean {
+    if (packet.data.byteLength < 32) return false;
+    let match = true;
+    for (let j = 0; j < 4; j++) {
+      match &&= packet.data.at(4 + j) === packet.data.at(8 + j);
+    }
+    return match;
+  }
+
   function sync() {
+    const active = compiled;
     let reset = false;
     if (lastPacketsLength > packets.length) {
       reset = true;
     }
-    if (opcodeFilter !== lastFilter || selfOnly !== lastSelfOnly) {
+    if (
+      filterText !== lastFilterText ||
+      selfOnly !== lastSelfOnly ||
+      active !== lastCompiled
+    ) {
       reset = true;
-      lastFilter = opcodeFilter;
+      lastFilterText = filterText;
       lastSelfOnly = selfOnly;
+      lastCompiled = active;
     }
     if (!reset && lastPacketsLength === packets.length) {
       return;
     }
 
-    const filters = opcodeFilter
-      .split(",")
-      .map((f) => filterToOpcode(f.trim()))
-      .filter((f): f is number => f !== undefined);
-
     if (reset) {
       filteredPackets.length = 0;
       lastPacketsLength = 0;
+      lastOpcodes =
+        active && active.valid && active.opcodes
+          ? new Set(active.opcodes)
+          : null;
     }
+
+    const predicate = active && active.valid ? active.predicate : () => true;
+    const opcodes = lastOpcodes;
 
     for (let i = lastPacketsLength; i < packets.length; i++) {
       const packet = packets[i];
-      if (selfOnly && packet.data.byteLength >= 32) {
-        let match = true;
-        for (let j = 0; j < 4; j++) {
-          match &&= packet.data.at(4 + j) === packet.data.at(8 + j);
-        }
-        if (!match) continue;
-      }
-      if (filters.length === 0 || filters.includes(packet.opcode)) {
-        filteredPackets.push(packet);
-      }
+      if (opcodes && !opcodes.has(packet.opcode)) continue;
+      if (selfOnly && !isSelfPacket(packet)) continue;
+      if (!predicate(packet)) continue;
+      filteredPackets.push(packet);
     }
 
     console.log("Syncing packets, total:", packets.length, "filtered:", filteredPackets.length, "index:", lastPacketsLength);
@@ -229,33 +260,28 @@
 <div class="packet-viewer">
   <div class="packet-left">
     <div class="viewer-filter">
-      <span class="label"> Count: </span>
-      <span class="value">
-        {filteredPackets.length} / {packets.length}
-      </span>
-      <label>
-        <span class="label"> Opcode: </span>
-        <input
-          type="text"
-          bind:value={opcodeFinder}
-          onkeypress={handleSearchKey}
-          placeholder="enter opcode"
-        />
-      </label>
-      <button type="button" onclick={findPrev}>↑</button>
-      <button type="button" onclick={findNext}>↓</button>
-      <label>
-        <span class="label"> Filter: </span>
-        <input
-          type="text"
-          bind:value={opcodeFilter}
-          placeholder="list separate by comma"
-        />
-      </label>
-      <label>
-        <input type="checkbox" bind:checked={selfOnly} />
-        <span class="label">Self</span>
-      </label>
+      <div class="filter-row">
+        <span class="label"> Count: </span>
+        <span class="value">
+          {filteredPackets.length} / {packets.length}
+        </span>
+        <label>
+          <span class="label"> Opcode: </span>
+          <input
+            type="text"
+            bind:value={opcodeFinder}
+            onkeypress={handleSearchKey}
+            placeholder="enter opcode"
+          />
+        </label>
+        <button type="button" onclick={findPrev}>↑</button>
+        <button type="button" onclick={findNext}>↓</button>
+        <label title="等价于 packet.self">
+          <input type="checkbox" bind:checked={selfOnly} />
+          <span class="label">Self</span>
+        </label>
+      </div>
+      <FilterBar bind:value={filterText} {compiled} {symbols} />
     </div>
     <div
       class="packet-list"
@@ -318,7 +344,7 @@
       </div>
       <div class="packet-info">
         {#if selectedIndex < 0}
-          <PacketFields {packet} {repo} />
+          <PacketFields {packet} {repo} onFilter={applyFieldFilter} />
         {:else}
           <ByteInspector {dw} {selectedIndex} />
         {/if}
@@ -404,7 +430,10 @@
   }
 
   .viewer-filter {
-    height: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-bottom: 4px;
     text-align: left;
 
     & button {
@@ -412,9 +441,16 @@
     }
 
     .label {
-      margin-left: 10px;
       font-weight: 600;
+      white-space: nowrap;
     }
+  }
+
+  .filter-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 26px;
   }
 
   .packet-list {

@@ -7,9 +7,11 @@
   let {
     packet,
     repo,
+    onFilter,
   }: {
     packet: Packet;
     repo: DataLoader;
+    onFilter?: (expr: string) => void;
   } = $props();
 
   let ipcTypeName = $derived(repo.getOpcodeName(packet.opcode, packet.dir));
@@ -46,6 +48,12 @@
     }
     return undefined;
   });
+
+  // e.g. "LogMsg" for ActorControlSelf category == 517
+  let subTypeName = $derived.by(() => {
+    if (!ipcStruct || !subTypeField || subTypeValue === undefined) return "";
+    return repo.getFieldAlias(ipcStruct.name, subTypeField, subTypeValue) ?? "";
+  });
 </script>
 
 <div class="packet-fields">
@@ -71,6 +79,9 @@
             subType={subTypeField}
             subValue={subTypeValue}
             {repo}
+            path={ipcTypeName ?? ""}
+            {subTypeName}
+            {onFilter}
           />
         {/each}
       {:else}

@@ -96,7 +96,7 @@
     <select
       id="version-select"
       value={repo.version}
-      onchange={(ev) => repo.loadVersion(ev.target.value)}
+      onchange={(ev) => repo.loadVersion((ev.currentTarget as HTMLSelectElement).value)}
     >
       {#each repo.versionList as version}
         <option value={version}>{version}</option>
